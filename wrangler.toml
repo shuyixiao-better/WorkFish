@@ -1,5 +1,5 @@
-name = "boss-coming"
-compatibility_date = "2024-01-01"
+"$schema" = "./node_modules/wrangler/config-schema.json"
 
-[site]
-bucket = "./web"
+name = "WorkFish"
+compatibility_date = "2026-06-08"
+pages_build_output_dir = "./web"

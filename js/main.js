@@ -3,12 +3,17 @@
  * 控制游戏的初始化、更新和渲染
  */
 
-import { GameStatus, PlayerStatus, createGameState, resetGameState, updateGameTime, updateScore, updateMessage, updateShake, getShakeOffset } from './gameState.js';
+import {
+  GameStatus, PlayerStatus,
+  createGameState, resetGameState,
+  updateGameTime, updateScore, updateMessage, updateShake, updateButtonPulse,
+  updateScorePopups, updateFloatingEmojis, addScorePopup, getShakeOffset
+} from './gameState.js';
 import { createPlayer, updatePlayer, triggerDisguise, setExpression, updateStats } from './player.js';
-import { createBoss, updateBoss, shouldBossAppear, makeBossAppear, handleDisguise } from './boss.js';
-import { drawOfficeBackground, drawPlayerIdle, drawPlayerWorking, drawBoss, drawWarningBar } from './scene.js';
+import { createBoss, updateBoss, shouldBossAppear, makeBossAppear, handleDisguise, getAppearProgress } from './boss.js';
+import { drawOfficeBackground, drawPlayerIdle, drawPlayerWorking, drawBoss } from './scene.js';
 import { drawMenuPage, drawGameUI, drawGameOverPage, drawParticles } from './ui.js';
-import { isPointInRect, randomFloat, easeOutQuad } from './utils.js';
+import { isPointInRect, randomFloat, easeOutBack, COLORS } from './utils.js';
 
 /**
  * 游戏主类
@@ -37,6 +42,9 @@ export class Game {
     // 动画相关
     this.lastTime = 0;
     this.animationId = null;
+    this.menuTime = 0;
+    this.gameOverTime = 0;
+    this.idleAnimTime = 0;
 
     // 绑定事件
     this.bindEvents();
@@ -58,7 +66,6 @@ export class Game {
     this.width = windowWidth;
     this.height = windowHeight;
 
-    // 更新按钮位置
     this.updateButtonPositions();
   }
 
@@ -66,30 +73,29 @@ export class Game {
    * 更新按钮位置
    */
   updateButtonPositions() {
-    const buttonWidth = this.width * 0.6;
-    const buttonHeight = 55;
-    const buttonX = (this.width - buttonWidth) / 2;
+    const buttonWidth = this.width * 0.64;
+    const buttonHeight = 56;
 
-    // 开始按钮
+    // 开始按钮（菜单页中部偏下）
     this.startButton = {
-      x: buttonX,
-      y: this.height * 0.65,
+      x: (this.width - buttonWidth) / 2,
+      y: this.height * 0.63,
       width: buttonWidth,
       height: buttonHeight,
     };
 
-    // 伪装按钮
+    // 伪装按钮（游戏页底部）
     this.disguiseButton = {
-      x: buttonX,
-      y: this.height * 0.78,
+      x: (this.width - buttonWidth) / 2,
+      y: this.height * 0.80,
       width: buttonWidth,
       height: buttonHeight,
     };
 
-    // 再来一局按钮
+    // 再来一局按钮（结算页底部）
     this.restartButton = {
-      x: buttonX,
-      y: this.height * 0.78,
+      x: (this.width - buttonWidth) / 2,
+      y: this.height * 0.77,
       width: buttonWidth,
       height: buttonHeight,
     };
@@ -138,6 +144,7 @@ export class Game {
     resetGameState(this.state);
     this.boss = createBoss();
     this.particles = [];
+    this.idleAnimTime = 0;
 
     // 设置首次老板出现时间
     const interval = randomFloat(4, 6);
@@ -147,7 +154,7 @@ export class Game {
   }
 
   /**
-   * 重新开始游戏
+   * 重新开始
    */
   restartGame() {
     this.startGame();
@@ -162,6 +169,19 @@ export class Game {
       if (success) {
         triggerDisguise(this.player);
         setExpression(this.player, 'relieved');
+
+        // 浮动分数弹出
+        const scoreX = this.width / 2;
+        const scoreY = this.height * 0.35;
+        const combo = this.state.combo;
+        const scoreText = combo > 1 ? `+50 x${combo}` : '+50';
+        addScorePopup(this.state, scoreText, scoreX, scoreY, COLORS.scoreGold);
+
+        // combo > 1 时额外弹出连击提示
+        if (combo > 1) {
+          addScorePopup(this.state, `${combo}连击!`, scoreX, scoreY - 30, '#FF6B6B');
+        }
+
         this.spawnParticles('success');
       }
     }
@@ -180,7 +200,7 @@ export class Game {
    */
   gameLoop() {
     const now = Date.now();
-    const deltaTime = (now - this.lastTime) / 1000;
+    const deltaTime = Math.min((now - this.lastTime) / 1000, 0.1); // 防止大帧跳跃
     this.lastTime = now;
 
     this.update(deltaTime);
@@ -193,21 +213,30 @@ export class Game {
    * 更新游戏逻辑
    */
   update(deltaTime) {
-    if (this.state.status !== GameStatus.PLAYING) {
+    // 菜单页动画时间
+    if (this.state.status === GameStatus.MENU) {
+      this.menuTime += deltaTime;
+      updateFloatingEmojis(this.state, deltaTime);
       return;
     }
 
-    // 更新游戏时间
+    // 结算页
+    if (this.state.status === GameStatus.GAME_OVER) {
+      this.gameOverTime += deltaTime;
+      this.updateParticles(deltaTime);
+      return;
+    }
+
+    // 游戏进行中
     updateGameTime(this.state, deltaTime);
-
-    // 更新分数
     updateScore(this.state, deltaTime);
-
-    // 更新消息
     updateMessage(this.state, deltaTime);
-
-    // 更新震动效果
     updateShake(this.state, deltaTime);
+    updateButtonPulse(this.state, deltaTime);
+    updateScorePopups(this.state, deltaTime);
+
+    // 闲置动画
+    this.idleAnimTime += deltaTime;
 
     // 更新玩家
     updatePlayer(this.player, deltaTime);
@@ -224,7 +253,7 @@ export class Game {
     // 更新粒子
     this.updateParticles(deltaTime);
 
-    // 检查游戏结束
+    // 游戏结束处理
     if (this.state.status === GameStatus.GAME_OVER) {
       updateStats(this.player, this.state.score, this.state.combo);
       this.spawnParticles('gameOver');
@@ -239,8 +268,9 @@ export class Game {
       const p = this.particles[i];
       p.x += p.vx * deltaTime;
       p.y += p.vy * deltaTime;
-      p.alpha -= deltaTime * 2;
-      p.size -= deltaTime * 10;
+      p.vy += (p.gravity || 200) * deltaTime;
+      p.alpha -= deltaTime * (p.fadeSpeed || 1.5);
+      p.rotation = (p.rotation || 0) + (p.rotSpeed || 0) * deltaTime;
 
       if (p.alpha <= 0 || p.size <= 0) {
         this.particles.splice(i, 1);
@@ -252,23 +282,70 @@ export class Game {
    * 生成粒子
    */
   spawnParticles(type) {
-    const centerX = this.width / 2;
-    const centerY = this.height / 2;
+    const cx = this.width / 2;
+    const cy = this.height * 0.35;
+    const count = type === 'success' ? 16 : 25;
 
-    for (let i = 0; i < 20; i++) {
-      const angle = (Math.PI * 2 * i) / 20;
-      const speed = randomFloat(100, 300);
-      const color = type === 'success' ? '#2ecc71' : '#e74c3c';
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + randomFloat(-0.2, 0.2);
+      const speed = randomFloat(120, 320);
 
-      this.particles.push({
-        x: centerX,
-        y: centerY,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: randomFloat(3, 8),
-        alpha: 1,
-        color: color,
-      });
+      if (type === 'success') {
+        // 成功：星星 + 金色粒子
+        const isStar = Math.random() < 0.4;
+        this.particles.push({
+          x: cx,
+          y: cy,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 100,
+          size: randomFloat(5, 14),
+          alpha: 1,
+          color: Math.random() > 0.5 ? COLORS.particleGold : COLORS.particleSuccess,
+          gravity: 150,
+          fadeSpeed: 1.8,
+          rotation: randomFloat(0, Math.PI * 2),
+          rotSpeed: randomFloat(-3, 3),
+          type: isStar ? 'star' : 'circle',
+        });
+      } else if (type === 'gameOver') {
+        // 游戏结束：红色 + 深色粒子
+        this.particles.push({
+          x: cx + randomFloat(-80, 80),
+          y: cy + randomFloat(-30, 30),
+          vx: randomFloat(-60, 60),
+          vy: randomFloat(-200, -50),
+          size: randomFloat(4, 12),
+          alpha: 1,
+          color: Math.random() > 0.5 ? COLORS.particleDanger : '#495057',
+          gravity: 80,
+          fadeSpeed: 1.2,
+          rotation: randomFloat(0, Math.PI * 2),
+          rotSpeed: randomFloat(-2, 2),
+          type: 'confetti',
+        });
+      }
+    }
+
+    // 成功后添加emoji粒子
+    if (type === 'success') {
+      const emojis = ['✨', '🌟', '💪', '👏'];
+      for (let i = 0; i < 4; i++) {
+        this.particles.push({
+          x: cx + randomFloat(-30, 30),
+          y: cy,
+          vx: randomFloat(-80, 80),
+          vy: randomFloat(-250, -150),
+          size: 18 + Math.random() * 10,
+          alpha: 1,
+          color: COLORS.particleStar,
+          gravity: 60,
+          fadeSpeed: 1.0,
+          rotation: 0,
+          rotSpeed: 0,
+          type: 'emoji',
+          emoji: emojis[i],
+        });
+      }
     }
   }
 
@@ -278,7 +355,7 @@ export class Game {
   render() {
     const ctx = this.ctx;
 
-    // 应用震动效果
+    // 应用震动偏移
     const shakeOffset = getShakeOffset(this.state);
     ctx.save();
     ctx.translate(shakeOffset.x, shakeOffset.y);
@@ -290,11 +367,9 @@ export class Game {
       case GameStatus.MENU:
         this.renderMenu();
         break;
-
       case GameStatus.PLAYING:
         this.renderGame();
         break;
-
       case GameStatus.GAME_OVER:
         this.renderGameOver();
         break;
@@ -307,7 +382,7 @@ export class Game {
    * 渲染菜单页面
    */
   renderMenu() {
-    drawMenuPage(this.ctx, this.width, this.height, this.startButton);
+    drawMenuPage(this.ctx, this.width, this.height, this.startButton, this.menuTime);
   }
 
   /**
@@ -315,38 +390,69 @@ export class Game {
    */
   renderGame() {
     const ctx = this.ctx;
+    const { width, height } = this;
 
-    // 绘制办公室背景
-    drawOfficeBackground(ctx, this.width, this.height);
+    // 办公室背景
+    drawOfficeBackground(ctx, width, height);
 
-    // 绘制玩家
-    const playerX = this.width * 0.45;
-    const playerY = this.height * 0.35;
-    const playerSize = 60;
+    // 玩家位置（坐在电脑前）
+    const playerX = width * 0.42;
+    const playerY = height * 0.52;
+    const playerSize = 70;
 
+    // 绘制玩家（根据状态选择不同绘制）
     if (this.state.playerStatus === PlayerStatus.WORKING) {
       drawPlayerWorking(ctx, playerX, playerY, playerSize);
     } else {
-      drawPlayerIdle(ctx, playerX, playerY, playerSize);
+      drawPlayerIdle(ctx, playerX, playerY, playerSize, this.idleAnimTime);
     }
 
-    // 绘制老板（带出现/消失动画）
+    // 绘制老板（带动画）
     if (this.state.bossVisible) {
       const appearProgress = getAppearProgress(this.boss);
-      const scale = easeOutQuad(appearProgress);
+      const scale = easeOutBack(appearProgress);
+
+      // 根据动画类型选择不同的出现方式
+      const bossW = this.boss.width;
+      const bossH = this.boss.height;
 
       ctx.save();
-      ctx.translate(this.boss.x + this.boss.width / 2, this.boss.y + this.boss.height / 2);
-      ctx.scale(scale, scale);
-      ctx.translate(-this.boss.width / 2, -this.boss.height / 2);
 
-      drawBoss(ctx, 0, 0, this.boss.width, this.boss.expression);
+      if (this.boss.appearType === 'slideRight') {
+        // 从右侧滑入
+        const slideX = (1 - appearProgress) * (width + bossW);
+        ctx.translate(slideX, 0);
+      }
+
+      // 缩放效果
+      if (this.boss.appearType === 'scale') {
+        ctx.translate(this.boss.x + bossW / 2, this.boss.y + bossH / 2);
+        ctx.scale(scale, scale);
+        ctx.translate(-(this.boss.x + bossW / 2), -(this.boss.y + bossH / 2));
+      }
+
+      drawBoss(ctx, this.boss.x, this.boss.y, bossW, this.boss.expression);
+
+      // "!" 感叹号（在头顶弹跳）
+      if (appearProgress > 0.6) {
+        const exclamationBounce = Math.sin(this.boss.exclamationTimer * 6) * 5;
+        ctx.fillStyle = '#E03131';
+        ctx.font = 'bold 32px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        const exX = this.boss.x + bossW / 2 + 40;
+        const exY = this.boss.y - 15 + exclamationBounce;
+        // 白色描边
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 3;
+        ctx.strokeText('!', exX, exY);
+        ctx.fillText('!', exX, exY);
+      }
 
       ctx.restore();
     }
 
-    // 绘制UI
-    drawGameUI(ctx, this.width, this.height, this.state, this.disguiseButton);
+    // 绘制UI（包含按钮、分数弹出等）
+    drawGameUI(ctx, width, height, this.state, this.disguiseButton);
 
     // 绘制粒子
     drawParticles(ctx, this.particles);
@@ -356,7 +462,11 @@ export class Game {
    * 渲染结算页面
    */
   renderGameOver() {
-    drawGameOverPage(this.ctx, this.width, this.height, this.state, this.restartButton);
+    drawGameOverPage(
+      this.ctx, this.width, this.height,
+      this.state, this.restartButton,
+      Math.floor(this.state.score)
+    );
     drawParticles(this.ctx, this.particles);
   }
 

@@ -9,12 +9,13 @@
  */
 
 import { COLORS, roundRectPath, fillRoundRect } from './utils.js';
+import { getShakeOffsetForEnv } from './effects.js';
 
 // ============================================================
 //  办公室背景
 // ============================================================
 
-export function drawOfficeBackground(ctx, width, height, suspicion) {
+export function drawOfficeBackground(ctx, width, height, suspicion, envShakeIntensity) {
   // ---- 墙壁 ----
   const wallGrad = ctx.createLinearGradient(0, 0, 0, height * 0.7);
   wallGrad.addColorStop(0, COLORS.wallBase);
@@ -61,7 +62,7 @@ export function drawOfficeBackground(ctx, width, height, suspicion) {
   drawPoster(ctx, width * 0.68, height * 0.2, width * 0.22, height * 0.18);
   drawDesk(ctx, width * 0.1, height * 0.44, width * 0.75, height * 0.24);
   drawComputer(ctx, width * 0.25, height * 0.27, Math.min(160, width * 0.35), Math.min(105, height * 0.14));
-  drawCoffeeCup(ctx, width * 0.68, height * 0.40, 20, 26);
+  drawCoffeeCup(ctx, width * 0.68, height * 0.40, 20, 26, envShakeIntensity || 0);
   drawPapers(ctx, width * 0.72, height * 0.42, 48, 18);
   drawChair(ctx, width * 0.35, height * 0.52, 85, 60);
   drawPlant(ctx, width * 0.85, height * 0.36, 50, 78);
@@ -354,7 +355,11 @@ function drawComputer(ctx, x, y, w, h) {
   ctx.fill();
 }
 
-function drawCoffeeCup(ctx, x, y, w, h) {
+function drawCoffeeCup(ctx, x, y, w, h, envShakeIntensity) {
+  // 环境抖动偏移（老板出现时咖啡杯会抖动）
+  const shakeOffset = getShakeOffsetForEnv(Date.now() / 1000, envShakeIntensity || 0);
+  ctx.save();
+  ctx.translate(shakeOffset.x, shakeOffset.y);
   // 阴影
   ctx.fillStyle = 'rgba(0,0,0,0.06)';
   ctx.beginPath();
@@ -399,6 +404,7 @@ function drawCoffeeCup(ctx, x, y, w, h) {
     ctx.arc(sx, sy, sr, 0, Math.PI * 2);
     ctx.fill();
   }
+  ctx.restore();
 }
 
 function drawPapers(ctx, x, y, w, h) {
@@ -1090,7 +1096,7 @@ export function drawWarningVignette(ctx, width, height, progress) {
   });
 }
 
-export function drawWarningBar(ctx, x, y, width, height, progress) {
+export function drawWarningBar(ctx, x, y, width, height, progress, actualTimeout) {
   // 背景
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.beginPath();
@@ -1128,7 +1134,8 @@ export function drawWarningBar(ctx, x, y, width, height, progress) {
   ctx.stroke();
 
   // 倒计时
-  const remaining = Math.max((1 - progress) * 1.2, 0);
+  const timeout = actualTimeout || 1.2;
+  const remaining = Math.max((1 - progress) * timeout, 0);
   const pulse = progress > 0.7 ? Math.sin(Date.now() / 1000 * 10) * 0.3 + 0.7 : 1;
   ctx.save();
   ctx.globalAlpha = pulse;

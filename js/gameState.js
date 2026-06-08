@@ -109,6 +109,29 @@ export function createGameState() {
     // ---- 近身闪避 ----
     closeCallTriggered: false,
     closeCallTimer: 0,
+
+    // ---- 画面冻结 (Hit Stop) ----
+    hitStopTimer: 0,
+
+    // ---- 冲击波环 ----
+    impactRings: [],
+
+    // ---- 时序评级弹出 ----
+    ratingPopups: [],
+
+    // ---- 速度线 ----
+    speedLines: [],
+    speedLineAlpha: 0,
+
+    // ---- 飞散纸张 ----
+    flyingPapers: [],
+
+    // ---- 成功辐射线 ----
+    successRayTimer: 0,
+
+    // ---- 游戏结束动画 ----
+    gameOverAnimTimer: 0,
+    gameOverAnimDuration: 1.8,   // 从游戏场景过渡到结算页的动画时长
   };
 }
 
@@ -150,6 +173,14 @@ export function resetGameState(state) {
   state.comboGlow = 0;
   state.closeCallTriggered = false;
   state.closeCallTimer = 0;
+  state.hitStopTimer = 0;
+  state.impactRings = [];
+  state.ratingPopups = [];
+  state.speedLines = [];
+  state.speedLineAlpha = 0;
+  state.flyingPapers = [];
+  state.successRayTimer = 0;
+  state.gameOverAnimTimer = 0;
   return state;
 }
 
@@ -171,6 +202,9 @@ export function updateGameTime(state, deltaTime) {
   if (state.remainingTime <= 0) {
     state.remainingTime = 0;
     state.status = GameStatus.GAME_OVER;
+    // 时间耗尽也需要视觉反馈
+    triggerShake(state, 10, 0.5);
+    triggerFlash(state, '#FF4444', 0.25);
   }
 }
 
@@ -332,6 +366,30 @@ export function updateFloatingEmojis(state, deltaTime) {
   }
 }
 
+/**
+ * 更新画面冻结计时器
+ * @returns {boolean} 是否处于冻结中
+ */
+export function updateHitStop(state, deltaTime) {
+  if (state.hitStopTimer > 0) {
+    state.hitStopTimer -= deltaTime;
+    if (state.hitStopTimer <= 0) {
+      state.hitStopTimer = 0;
+    }
+    return true;
+  }
+  return false;
+}
+
+/**
+ * 更新游戏结束动画计时器
+ */
+export function updateGameOverAnim(state, deltaTime) {
+  if (state.gameOverAnimTimer > 0 && state.gameOverAnimTimer < state.gameOverAnimDuration) {
+    state.gameOverAnimTimer += deltaTime;
+  }
+}
+
 // ============================================================
 //  操作函数
 // ============================================================
@@ -351,6 +409,13 @@ export function showMessage(state, message, duration = 1.5, type = 'normal') {
 export function triggerShake(state, intensity = 5, duration = 0.3) {
   state.shakeIntensity = intensity;
   state.shakeTimer = duration;
+}
+
+/**
+ * 触发画面冻结（hit stop）
+ */
+export function triggerHitStop(state, duration = 0.08) {
+  state.hitStopTimer = duration;
 }
 
 /**

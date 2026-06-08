@@ -9,7 +9,7 @@
  */
 
 import {
-  COLORS, drawEmoji, drawStrokedText,
+  COLORS, drawEmoji,
   drawRoundedButton, formatTime, formatScore,
   getTitle, roundRectPath, fillRoundRect,
   ACHIEVEMENTS,
@@ -18,6 +18,11 @@ import { GameStatus, PlayerStatus } from './gameState.js';
 import { getStatusText, getAchievementById, getPlayerLevel } from './player.js';
 import { drawWarningVignette, drawWarningBar } from './scene.js';
 import { drawActiveItemIndicator } from './items.js';
+import {
+  drawImpactRing, drawSpeedLines, drawPulseVignette,
+  drawFlyingPaper, drawRatingPopup,
+  drawGameOverDesaturation, drawFailText, drawSuccessRays,
+} from './effects.js';
 
 // ============================================================
 //  菜单页面
@@ -168,7 +173,7 @@ export function drawGameUI(ctx, width, height, state, button) {
     const barH = 24;
     const barX = (width - barW) / 2;
     const barY = height * 0.86;
-    drawWarningBar(ctx, barX, barY, barW, barH, progress);
+    drawWarningBar(ctx, barX, barY, barW, barH, progress, state.bossTimeout);
   }
 
   // 顶部信息栏
@@ -768,6 +773,76 @@ export function drawFlashOverlay(ctx, width, height, color, alpha) {
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, width, height);
   ctx.restore();
+}
+
+// ============================================================
+//  特效渲染层
+// ============================================================
+
+/**
+ * 游戏中特效层 — 在场景之上、HUD 之下渲染
+ * 包含：速度线、脉冲暗角、冲击波、评级弹出、成功射线、飞散纸张
+ */
+export function drawEffectsLayer(ctx, width, height, state, time) {
+  // ---- 脉冲暗角（随怀疑值脉动） ----
+  const suspicionIntensity = state.suspicion / 100;
+  if (suspicionIntensity > 0.15) {
+    drawPulseVignette(ctx, width, height, suspicionIntensity, time);
+  }
+
+  // ---- 速度线（老板出现 / 紧急时刻） ----
+  if (state.speedLines && state.speedLines.length > 0 && state.speedLineAlpha > 0) {
+    drawSpeedLines(ctx, state.speedLines, width / 2, height * 0.4, state.speedLineAlpha);
+  }
+
+  // ---- 成功辐射线 ----
+  if (state.successRayTimer > 0) {
+    drawSuccessRays(ctx, width / 2, height * 0.35, state.successRayTimer, 1);
+  }
+
+  // ---- 冲击波环 ----
+  if (state.impactRings) {
+    state.impactRings.forEach(ring => drawImpactRing(ctx, ring));
+  }
+
+  // ---- 飞散纸张 ----
+  if (state.flyingPapers) {
+    state.flyingPapers.forEach(p => drawFlyingPaper(ctx, p));
+  }
+
+  // ---- 时序评级弹出 ----
+  if (state.ratingPopups) {
+    state.ratingPopups.forEach(popup => drawRatingPopup(ctx, popup));
+  }
+}
+
+// ============================================================
+//  游戏结束过渡
+// ============================================================
+
+/**
+ * 游戏结束过渡动画 — 在 renderGame 结束后、renderGameOver 开始前
+ * 依次播放：震屏 → 画面变暗 → "被老板抓包了!" 弹出 → 过渡到结算页
+ *
+ * @param {number} timer — 当前动画计时 (0 ~ gameOverAnimDuration)
+ * @param {number} duration — 总时长
+ * @returns {boolean} 过渡是否完成（完成后应切换到 renderGameOver）
+ */
+export function drawGameOverTransition(ctx, width, height, timer, duration) {
+  const progress = Math.min(timer / duration, 1);
+
+  // Phase 1 (0~0.4): 画面变暗 + 暗角
+  const desatProgress = Math.min(progress / 0.4, 1);
+  drawGameOverDesaturation(ctx, width, height, desatProgress);
+
+  // Phase 2 (0.2~1.0): "被老板抓包了!" 弹出
+  const failStart = 0.2;
+  if (timer > failStart) {
+    const failTimer = timer - failStart;
+    drawFailText(ctx, width, height, failTimer);
+  }
+
+  return progress >= 1;
 }
 
 // ---- 辅助 ----

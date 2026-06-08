@@ -17,7 +17,8 @@ import {
   updateButtonPulse, updateScorePopups, updateFloatingEmojis,
   updateSuspicion, updateActiveItem, updateFlash, updateComboGlow,
   updateCloseCall, updateAchievementPopup,
-  addScorePopup, getShakeOffset,
+  updateHitStop, updateGameOverAnim,
+  addScorePopup, getShakeOffset, triggerHitStop,
   showMessage,
 } from './gameState.js';
 import { createPlayer, updatePlayer, triggerDisguise, setExpression, finalizeGameStats, getAchievementById } from './player.js';
@@ -35,7 +36,15 @@ import { drawOfficeBackground, drawPlayerIdle, drawPlayerWorking, drawBoss } fro
 import {
   drawMenuPage, drawGameUI, drawGameOverPage, drawParticles,
   drawAchievementPopup, drawFlashOverlay,
+  drawEffectsLayer, drawGameOverTransition,
 } from './ui.js';
+import {
+  createImpactRing, updateImpactRing,
+  createSpeedLines,
+  createFlyingPapers, updateFlyingPaper,
+  createRatingPopup, updateRatingPopup,
+  getEnhancedShakeOffset,
+} from './effects.js';
 import { isPointInRect, randomFloat, easeOutBack, COLORS } from './utils.js';
 
 /**
@@ -77,6 +86,15 @@ export class Game {
 
     // 游戏结束处理标记（防止重复调用）
     this.gameOverHandled = false;
+
+    // ---- 特效系统 ----
+    this.impactRings = [];       // 冲击波环
+    this.speedLines = [];        // 速度线
+    this.speedLineAlpha = 0;     // 速度线透明度
+    this.flyingPapers = [];      // 飞散纸张
+    this.ratingPopups = [];      // 时序评级弹出
+    this.envShakeIntensity = 0;  // 环境抖动强度（咖啡杯等）
+    this.successRayTimer = 0;    // 成功辐射线计时器
 
     // 绑定事件
     this.bindEvents();
@@ -136,7 +154,8 @@ export class Game {
    * 绑定触摸事件
    */
   bindEvents() {
-    wx.onTouchStart(this.handleTouchStart.bind(this));
+    this._boundTouchStart = this.handleTouchStart.bind(this);
+    wx.onTouchStart(this._boundTouchStart);
   }
 
   /**
@@ -191,6 +210,22 @@ export class Game {
     this.achievementQueue = [];
     this.gameOverHandled = false;
 
+    // 重置特效
+    this.impactRings = [];
+    this.speedLines = [];
+    this.speedLineAlpha = 0;
+    this.flyingPapers = [];
+    this.ratingPopups = [];
+    this.envShakeIntensity = 0;
+    this.successRayTimer = 0;
+    this.state.impactRings = [];
+    this.state.ratingPopups = [];
+    this.state.speedLines = [];
+    this.state.speedLineAlpha = 0;
+    this.state.flyingPapers = [];
+    this.state.successRayTimer = 0;
+    this.state.gameOverAnimTimer = 0;
+
     // 设置首次老板出现时间
     const interval = randomFloat(4, 6);
     this.state.nextBossTime = interval;
@@ -206,7 +241,7 @@ export class Game {
   }
 
   /**
-   * 处理伪装动作
+   * 处理伪装动作 — 增强版（含时序评级 + 特效触发）
    */
   handleDisguiseAction() {
     if (this.state.bossVisible) {
@@ -215,22 +250,40 @@ export class Game {
         triggerDisguise(this.player);
         setExpression(this.player, 'relieved');
 
-        // 浮动分数
         const scoreX = this.width / 2;
         const scoreY = this.height * 0.32;
+        const config = result.ratingConfig;
+
+        // ---- 浮动分数 ----
         const scoreText = result.combo > 1
           ? `+${result.score} x${result.combo}`
           : `+${result.score}`;
-        addScorePopup(this.state, scoreText, scoreX, scoreY, COLORS.scoreGold, 1.3);
+        addScorePopup(this.state, scoreText, scoreX, scoreY, config.color, 1.3);
 
-        // 连击提示
-        if (result.combo >= 3) {
-          addScorePopup(this.state, `${result.combo}连击!`, scoreX, scoreY - 28, COLORS.particleCombo, 1.1);
+        // ---- 时序评级弹出 ----
+        this.state.ratingPopups.push(createRatingPopup(result.rating, scoreX, scoreY - 35));
+
+        // ---- 冲击波环 ----
+        this.state.impactRings.push(createImpactRing(scoreX, this.height * 0.5, config));
+
+        // ---- 画面冻结 (hit-stop) ----
+        if (config.hitStop > 0) {
+          triggerHitStop(this.state, config.hitStop);
         }
 
-        // 近身闪避额外提示
+        // ---- 成功辐射线 (Perfect 时) ----
+        if (result.rating === 'perfect') {
+          this.successRayTimer = 0.6;
+        }
+
+        // ---- 连击提示 ----
+        if (result.combo >= 3) {
+          addScorePopup(this.state, `${result.combo}连击!`, scoreX, scoreY - 60, COLORS.particleCombo, 1.1);
+        }
+
+        // ---- 近身闪避额外提示 ----
         if (result.closeCall) {
-          addScorePopup(this.state, '+100 极限!', scoreX, scoreY - 55, COLORS.scoreGold, 1.4);
+          addScorePopup(this.state, '+100 极限!', scoreX, scoreY - 85, COLORS.scoreGold, 1.4);
         }
 
         this.spawnParticles('success');
@@ -278,10 +331,22 @@ export class Game {
       this.gameOverTime += deltaTime;
       this.updateParticles(deltaTime);
       updateAchievementPopup(this.state, deltaTime);
+      // 更新游戏结束动画计时器
+      updateGameOverAnim(this.state, deltaTime);
+      // 过渡期间仍需更新视觉特效（冲击波、评级弹出等会淡出）
+      this.updateVisualEffects(deltaTime);
       return;
     }
 
     // ---- 游戏进行中 ----
+
+    // 画面冻结时：只更新视觉特效，跳过游戏逻辑
+    const isHitStopped = updateHitStop(this.state, deltaTime);
+
+    // 始终更新视觉特效（即使画面冻结）
+    this.updateVisualEffects(deltaTime);
+
+    if (isHitStopped) return; // 冻结期间跳过游戏逻辑
 
     // 基础更新
     updateGameTime(this.state, deltaTime);
@@ -303,6 +368,9 @@ export class Game {
     // 闲置动画
     this.idleAnimTime += deltaTime;
 
+    // 环境抖动衰减
+    this.envShakeIntensity = Math.max(0, this.envShakeIntensity - deltaTime * 8);
+
     // 玩家
     updatePlayer(this.player, deltaTime);
 
@@ -321,15 +389,15 @@ export class Game {
     if (shouldBossAppear(this.state, this.boss)) {
       // 同事掩护检查
       if (this.state.activeItem && this.state.activeItem.type === ItemType.COLLEAGUE) {
-        // 同事自动处理
         makeBossAppear(this.state, this.boss, this.width, this.height, false);
         useColleagueCover(this.state);
         handleColleagueCover(this.state, this.boss, this.width / 2);
-        this.state.activeItem = null;
         this.spawnParticles('success');
       } else {
         makeBossAppear(this.state, this.boss, this.width, this.height, isHeadphoneActive(this.state));
         setExpression(this.player, 'nervous');
+        // ---- 老板出现时触发特效 ----
+        this.onBossAppear();
       }
     }
 
@@ -337,7 +405,6 @@ export class Game {
     if (this.state.elapsedTime >= this.state.nextItemSpawnTime && this.floatingItems.length < 2) {
       const item = spawnRandomItem(this.width, this.height, this.state.elapsedTime);
       this.floatingItems.push(item);
-      // 下次道具出现时间
       this.state.nextItemSpawnTime = this.state.elapsedTime + randomFloat(6, 10);
     }
 
@@ -372,6 +439,66 @@ export class Game {
   }
 
   /**
+   * 更新所有视觉特效（即使 hit-stop 也执行）
+   */
+  updateVisualEffects(deltaTime) {
+    // 冲击波环
+    for (let i = this.state.impactRings.length - 1; i >= 0; i--) {
+      if (!updateImpactRing(this.state.impactRings[i], deltaTime)) {
+        this.state.impactRings.splice(i, 1);
+      }
+    }
+
+    // 时序评级弹出
+    for (let i = this.state.ratingPopups.length - 1; i >= 0; i--) {
+      if (!updateRatingPopup(this.state.ratingPopups[i], deltaTime)) {
+        this.state.ratingPopups.splice(i, 1);
+      }
+    }
+
+    // 速度线透明度衰减
+    if (this.state.speedLineAlpha > 0) {
+      this.state.speedLineAlpha = Math.max(0, this.state.speedLineAlpha - deltaTime * 2.5);
+    }
+
+    // 飞散纸张
+    for (let i = this.state.flyingPapers.length - 1; i >= 0; i--) {
+      if (!updateFlyingPaper(this.state.flyingPapers[i], deltaTime)) {
+        this.state.flyingPapers.splice(i, 1);
+      }
+    }
+
+    // 成功辐射线
+    if (this.successRayTimer > 0) {
+      this.successRayTimer -= deltaTime;
+      this.state.successRayTimer = this.successRayTimer;
+    }
+  }
+
+  /**
+   * 老板出现时的特效触发
+   */
+  onBossAppear() {
+    const cx = this.width / 2;
+    const cy = this.height * 0.4;
+
+    // 速度线
+    const lineCount = this.boss.style === 'urgent' ? 24 : 16;
+    const intensity = this.boss.style === 'urgent' ? 1.2 : 0.8;
+    this.state.speedLines = createSpeedLines(cx, cy, lineCount, intensity);
+    this.state.speedLineAlpha = 1;
+
+    // 飞散纸张（老板出现时桌上的纸张被震飞）
+    const paperCount = this.boss.style === 'urgent' ? 6 : 3;
+    this.state.flyingPapers = createFlyingPapers(
+      this.width * 0.72, this.height * 0.42, paperCount
+    );
+
+    // 环境抖动（咖啡杯等场景物件）
+    this.envShakeIntensity = this.boss.style === 'urgent' ? 1.0 : 0.6;
+  }
+
+  /**
    * 游戏结束处理
    */
   onGameOver() {
@@ -381,6 +508,18 @@ export class Game {
     if (result.newAchievements.length > 0) {
       this.achievementQueue.push(...result.newAchievements);
     }
+
+    // ---- 游戏结束特效 ----
+    // 增强震屏（阻尼振荡 + 二次余震）
+    this.state.shakeIntensity = 16;
+    this.state.shakeTimer = 0.7;
+
+    // 红色闪屏
+    this.state.flashAlpha = 0.35;
+    this.state.flashColor = '#FF2020';
+
+    // 启动游戏结束过渡动画
+    this.state.gameOverAnimTimer = 0.01; // 标记过渡开始
 
     this.spawnParticles('gameOver');
   }
@@ -477,13 +616,22 @@ export class Game {
   render() {
     const ctx = this.ctx;
 
-    // 震动偏移
-    const shakeOffset = getShakeOffset(this.state);
+    // 根据状态选择震动偏移
+    let shakeOffset;
+    if (this.state.status === GameStatus.GAME_OVER && this.state.shakeTimer > 0) {
+      // 游戏结束时使用增强震屏
+      shakeOffset = getEnhancedShakeOffset(
+        this.state.shakeTimer, this.state.shakeIntensity, 0.7
+      );
+    } else {
+      shakeOffset = getShakeOffset(this.state);
+    }
+
     ctx.save();
     ctx.translate(shakeOffset.x, shakeOffset.y);
 
     // 清屏
-    ctx.clearRect(-10, -10, this.width + 20, this.height + 20);
+    ctx.clearRect(-20, -20, this.width + 40, this.height + 40);
 
     switch (this.state.status) {
       case GameStatus.MENU:
@@ -493,7 +641,13 @@ export class Game {
         this.renderGame();
         break;
       case GameStatus.GAME_OVER:
-        this.renderGameOver();
+        // 过渡动画期间仍渲染游戏场景（过渡特效在 renderGame 末尾叠加）
+        if (this.state.gameOverAnimTimer > 0 &&
+            this.state.gameOverAnimTimer < this.state.gameOverAnimDuration) {
+          this.renderGame();
+        } else {
+          this.renderGameOver();
+        }
         break;
     }
 
@@ -518,8 +672,8 @@ export class Game {
     const ctx = this.ctx;
     const { width, height } = this;
 
-    // 办公室背景（传入怀疑值用于氛围效果）
-    drawOfficeBackground(ctx, width, height, this.state.suspicion);
+    // 办公室背景（传入怀疑值 + 环境抖动强度）
+    drawOfficeBackground(ctx, width, height, this.state.suspicion, this.envShakeIntensity);
 
     // 玩家
     const playerX = width * 0.40;
@@ -586,6 +740,9 @@ export class Game {
       ctx.restore();
     }
 
+    // ---- 特效层（速度线、冲击波、评级弹出等） ----
+    drawEffectsLayer(ctx, width, height, this.state, this.idleAnimTime);
+
     // 游戏 HUD
     drawGameUI(ctx, width, height, this.state, this.disguiseButton);
 
@@ -598,6 +755,15 @@ export class Game {
     // 成就弹窗
     if (this.state.achievementPopup) {
       drawAchievementPopup(ctx, width, this.state.achievementPopup, this.state.achievementTimer);
+    }
+
+    // ---- 游戏结束过渡动画 ----
+    if (this.state.gameOverAnimTimer > 0) {
+      const finished = drawGameOverTransition(
+        ctx, width, height,
+        this.state.gameOverAnimTimer, this.state.gameOverAnimDuration
+      );
+      // 过渡完成后自动切换到 GAME_OVER 状态（由 update 中的 gameOverAnimTimer 驱动）
     }
   }
 
@@ -633,6 +799,8 @@ export class Game {
    */
   destroy() {
     this.stop();
-    wx.offTouchStart(this.handleTouchStart);
+    if (this._boundTouchStart) {
+      wx.offTouchStart(this._boundTouchStart);
+    }
   }
 }

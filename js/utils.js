@@ -527,7 +527,7 @@ export const ACHIEVEMENTS = {
 export function checkAchievements(stats, newAchievements) {
   const unlocked = [];
 
-  if (stats.totalDodgeCount >= 1 && !newAchievements.includes(ACHIEVEMENTS.FIRST_DODGE.id)) {
+  if (stats.totalDodges >= 1 && !newAchievements.includes(ACHIEVEMENTS.FIRST_DODGE.id)) {
     unlocked.push(ACHIEVEMENTS.FIRST_DODGE.id);
   }
   if (stats.bestCombo >= 5 && !newAchievements.includes(ACHIEVEMENTS.COMBO_5.id)) {

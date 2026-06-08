@@ -13,8 +13,9 @@ import { randomFloat, getBossInterval, getBossTimeout } from './utils.js';
 import {
   GameStatus, PlayerStatus,
   showMessage, triggerShake, triggerFlash,
-  addScorePopup, triggerCloseCall
+  triggerCloseCall
 } from './gameState.js';
+import { getTimingRating, getRatingScoreMultiplier, getRatingConfig } from './effects.js';
 
 /**
  * 创建老板数据对象
@@ -229,7 +230,7 @@ export function triggerHeadphoneWarning(boss, secondsBefore) {
 }
 
 /**
- * 处理玩家点击伪装按钮 - 增强版
+ * 处理玩家点击伪装按钮 - 增强版（含时序评级）
  */
 export function handleDisguise(state, boss) {
   if (!state.bossVisible || boss.isDisappearing) return { success: false };
@@ -243,10 +244,16 @@ export function handleDisguise(state, boss) {
     state.combo++;
     state.maxCombo = Math.max(state.maxCombo, state.combo);
 
-    // 连击倍率加分
+    // ---- 时序评级 ----
+    const rating = getTimingRating(reactionTime, timeout);
+    const ratingConfig = getRatingConfig(rating);
+    const ratingMultiplier = getRatingScoreMultiplier(rating);
+
+    // 连击倍率 + 时序评级倍率
     const comboMultiplier = Math.min(state.combo, 10);
     const baseScore = 50;
-    const bonusScore = baseScore * comboMultiplier;
+    const rawScore = baseScore * comboMultiplier;
+    const bonusScore = Math.floor(rawScore * ratingMultiplier);
     state.score += bonusScore;
 
     // 近身闪避检测（在最后 0.3 秒内躲避）
@@ -257,7 +264,8 @@ export function handleDisguise(state, boss) {
       showMessage(state, '😱 极限闪避！+100', 1.5, 'success');
     } else {
       const comboText = state.combo > 1 ? ` (${state.combo}连击!)` : '';
-      showMessage(state, `安全！老板没发现${comboText}`, 1.2, 'success');
+      const ratingText = ratingConfig.label;
+      showMessage(state, `${ratingText} 安全！${comboText}`, 1.2, 'success');
     }
 
     // 老板消失
@@ -276,6 +284,10 @@ export function handleDisguise(state, boss) {
       closeCall: isCloseCall,
       combo: state.combo,
       score: bonusScore,
+      rating,              // 时序评级
+      ratingConfig,        // 评级配置（颜色、标签等）
+      reactionTime,        // 反应时间
+      timeout,             // 超时时间
     };
   }
 
@@ -296,8 +308,7 @@ export function handleColleagueCover(state, boss, canvasCenterX) {
   boss.expression = 'surprised';
   boss.disappearType = 'slideLeft';
 
-  showMessage(state, '🤝 同事帮你解围了！', 1.5, 'success');
-  addScorePopup(state, '+50 掩护', canvasCenterX || 180, 200, '#30D684', 1.2);
+  // 注意：消息和分数弹出由 useColleagueCover() 处理，此处不再重复
 }
 
 /**

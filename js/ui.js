@@ -9,7 +9,7 @@
  */
 
 import {
-  COLORS, drawEmoji,
+  COLORS, drawEmoji, drawIcon, font,
   drawRoundedButton, formatTime, formatScore,
   getTitle, roundRectPath, fillRoundRect,
   ACHIEVEMENTS,
@@ -46,20 +46,20 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
   ctx.arc(width * 0.1, height * 0.85, width * 0.28, 0, Math.PI * 2);
   ctx.fill();
 
-  // 浮动装饰
+  // 浮动装饰（使用矢量图标代替 emoji）
   const decorItems = [
-    { icon: '💻', x: 0.12, y: 0.42, s: 28, phase: 0 },
-    { icon: '📱', x: 0.85, y: 0.45, s: 26, phase: 1.2 },
-    { icon: '☕', x: 0.18, y: 0.72, s: 24, phase: 2.1 },
-    { icon: '💼', x: 0.82, y: 0.68, s: 26, phase: 0.8 },
-    { icon: '🕐', x: 0.88, y: 0.55, s: 22, phase: 1.6 },
-    { icon: '📄', x: 0.10, y: 0.58, s: 20, phase: 2.8 },
+    { iconId: 'laptop', x: 0.12, y: 0.42, s: 28, phase: 0 },
+    { iconId: 'phone', x: 0.85, y: 0.45, s: 26, phase: 1.2 },
+    { iconId: 'coffee', x: 0.18, y: 0.72, s: 24, phase: 2.1 },
+    { iconId: 'briefcase', x: 0.82, y: 0.68, s: 26, phase: 0.8 },
+    { iconId: 'timer', x: 0.88, y: 0.55, s: 22, phase: 1.6 },
+    { iconId: 'paper', x: 0.10, y: 0.58, s: 20, phase: 2.8 },
   ];
-  decorItems.forEach(({ icon, x, y, s, phase }) => {
+  decorItems.forEach(({ iconId, x, y, s, phase }) => {
     const floatY = Math.sin(time * 1.2 + phase) * 6;
     ctx.save();
-    ctx.globalAlpha = 0.3;
-    drawEmoji(ctx, icon, width * x, height * y + floatY, s);
+    ctx.globalAlpha = 0.35;
+    drawIcon(ctx, iconId, width * x, height * y + floatY, s);
     ctx.restore();
   });
 
@@ -68,7 +68,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
 
   // 标题阴影
   ctx.fillStyle = 'rgba(0,0,0,0.15)';
-  ctx.font = 'bold 48px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(48, true);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('老板来了', width / 2 + 2, titleY + 2);
@@ -91,7 +91,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
 
   // 副标题
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '18px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(18);
   ctx.fillText('上班摸鱼醒脑神器', width / 2, height * 0.25);
 
   // ---- 游戏说明卡片 ----
@@ -114,7 +114,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
   ctx.stroke();
 
   ctx.fillStyle = 'rgba(255,255,255,0.88)';
-  ctx.font = '13px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(13);
   ctx.textAlign = 'center';
   ctx.fillText('老板会随机出现，在 1.2 秒内点击伪装按钮！', width / 2, cardY + 26);
   ctx.fillText('反应太慢就会被抓包，收集道具可以获得加成~', width / 2, cardY + 50);
@@ -130,7 +130,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
     ctx.fill();
 
     ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.font = '12px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+    ctx.font = font(12);
     ctx.textAlign = 'left';
     ctx.fillText(`最高分: ${playerStats.bestScore}`, cardX + 16, histY + 20);
     ctx.textAlign = 'right';
@@ -140,7 +140,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
     const level = getPlayerLevel(playerStats);
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(255,255,255,0.75)';
-    ctx.font = 'bold 12px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+    ctx.font = font(12, true);
     ctx.fillText(`Lv.${level.level} ${level.title}`, width / 2, histY + 38);
   }
 
@@ -151,7 +151,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
 
   // ---- 底部 ----
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
-  ctx.font = '12px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(12);
   ctx.textAlign = 'center';
   ctx.fillText('30 秒醒脑反应小游戏', width / 2, height * 0.90);
 }
@@ -253,22 +253,27 @@ function drawTopBar(ctx, width, height, state) {
   } else {
     ctx.fillStyle = COLORS.textOnDark;
   }
-  ctx.font = 'bold 18px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
-  ctx.fillText(`⏱ ${formatTime(timeLeft)}`, 14, textY);
+  // 绘制计时器图标
+  drawIcon(ctx, 'timer', 22, textY, 16);
+  // 绘制时间文字
+  ctx.font = font(18, true);
+  ctx.fillText(formatTime(timeLeft), 38, textY);
 
   // 分数
   ctx.textAlign = 'center';
   ctx.fillStyle = COLORS.scoreGold;
-  ctx.font = 'bold 20px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(20, true);
   ctx.shadowColor = COLORS.scoreGoldGlow;
   ctx.shadowBlur = 6;
-  ctx.fillText(`${formatScore(state.score)}`, width / 2, textY - 2);
+  // 绘制星星图标
+  drawIcon(ctx, 'star', width / 2 - 28, textY - 2, 14);
+  ctx.fillText(`${formatScore(state.score)}`, width / 2 + 4, textY - 2);
   ctx.shadowBlur = 0;
 
   // 连击
   if (state.combo > 1) {
     ctx.fillStyle = COLORS.particleCombo;
-    ctx.font = 'bold 11px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+    ctx.font = font(11, true);
     ctx.fillText(`${state.combo}x COMBO`, width / 2, barH - 6);
   }
 
@@ -289,7 +294,7 @@ function drawTopBar(ctx, width, height, state) {
 
   // 状态文字
   ctx.fillStyle = COLORS.textOnDark;
-  ctx.font = '13px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(13);
   ctx.fillText(getStatusText(state.playerStatus), width - 12, textY);
 }
 
@@ -341,7 +346,7 @@ function drawSuspicionMeter(ctx, width, suspicion) {
   // 标签
   if (suspicion > 25) {
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.font = '9px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+    ctx.font = font(9);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillText('怀疑值', width / 2, barY + barH + 2);
@@ -353,7 +358,7 @@ function drawSuspicionMeter(ctx, width, suspicion) {
  */
 function drawMessage(ctx, width, height, message, type) {
   const padX = 24;
-  ctx.font = 'bold 18px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(18, true);
   const metrics = ctx.measureText(message);
   const msgW = metrics.width + padX * 2;
   const msgH = 42;
@@ -405,7 +410,7 @@ function drawCloseCallEffect(ctx, width, height, timer) {
 
   // 文字
   ctx.fillStyle = COLORS.scoreGold;
-  ctx.font = 'bold 28px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(28, true);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.shadowColor = 'rgba(255,215,0,0.5)';
@@ -461,12 +466,17 @@ function drawHeadphoneWarning(ctx, width, height, timeUntil) {
   ctx.fillStyle = COLORS.itemHeadphone;
   ctx.fillRect(0, 0, width, 4);
 
-  // 预警文字
+  // 耳机图标 + 预警文字
   ctx.fillStyle = COLORS.itemHeadphone;
-  ctx.font = 'bold 14px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
-  ctx.textAlign = 'center';
+  const warningText = '老板正在靠近...';
+  ctx.font = font(14, true);
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText('🎧 老板正在靠近...', width / 2, 68);
+  const textW = ctx.measureText(warningText).width;
+  const totalW = 20 + textW; // icon(~20px) + text
+  const startX = (width - totalW) / 2;
+  drawIcon(ctx, 'headphones', startX + 10, 68, 16);
+  ctx.fillText(warningText, startX + 22, 68);
 
   ctx.restore();
 }
@@ -516,7 +526,7 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
 
   // ---- 标题 ----
   ctx.fillStyle = COLORS.textOnDark;
-  ctx.font = 'bold 26px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(26, true);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('游戏结束', width / 2, height * 0.06);
@@ -530,20 +540,20 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
   ctx.arc(width / 2, titleY - 6, 40, 0, Math.PI * 2);
   ctx.fill();
 
-  drawEmoji(ctx, '🏆', width / 2, titleY - 8, 30);
+  drawIcon(ctx, 'trophy', width / 2, titleY - 8, 36);
 
   ctx.fillStyle = COLORS.scoreGold;
-  ctx.font = 'bold 22px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(22, true);
   ctx.fillText(title, width / 2, titleY + 18);
 
   // ---- 分数 ----
   const scoreY = height * 0.22;
   ctx.fillStyle = COLORS.textOnDarkMuted;
-  ctx.font = '14px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(14);
   ctx.fillText('最终得分', width / 2, scoreY);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 52px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(52, true);
   ctx.shadowColor = 'rgba(255,255,255,0.15)';
   ctx.shadowBlur = 10;
   ctx.fillText(formatScore(score), width / 2, scoreY + 36);
@@ -552,7 +562,7 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
   // 最高分标记
   if (player && player.stats && score >= player.stats.bestScore && score > 0) {
     ctx.fillStyle = COLORS.scoreGold;
-    ctx.font = 'bold 12px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+    ctx.font = font(12, true);
     ctx.fillText('新纪录!', width / 2, scoreY + 58);
   }
 
@@ -577,7 +587,7 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
 
   // 卡片标题
   ctx.fillStyle = COLORS.textOnDarkMuted;
-  ctx.font = '12px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(12);
   ctx.fillText('本局数据', width / 2, cardY + 18);
 
   // 分割线
@@ -589,28 +599,32 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
 
   // 统计行
   const stats = [
-    { label: '坚持时长', value: `${Math.floor(state.elapsedTime)}秒`, icon: '⏱' },
-    { label: '躲避次数', value: `${state.dodgeCount}次`, icon: '🛡️' },
-    { label: '最高连击', value: `${state.maxCombo}x`, icon: '🔥' },
-    { label: '使用道具', value: `${state.itemsUsed}个`, icon: '🎒' },
+    { label: '坚持时长', value: `${Math.floor(state.elapsedTime)}秒`, iconId: 'timer' },
+    { label: '躲避次数', value: `${state.dodgeCount}次`, iconId: 'shield' },
+    { label: '最高连击', value: `${state.maxCombo}x`, iconId: 'fire' },
+    { label: '使用道具', value: `${state.itemsUsed}个`, iconId: 'backpack' },
   ];
 
   stats.forEach((stat, i) => {
     const sy = cardY + 48 + i * 32;
+    // 绘制图标
+    drawIcon(ctx, stat.iconId, cardX + 34, sy, 14);
+    // 绘制标签文字
     ctx.textAlign = 'left';
     ctx.fillStyle = COLORS.textOnDarkMuted;
-    ctx.font = '13px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
-    ctx.fillText(`${stat.icon}  ${stat.label}`, cardX + 24, sy);
+    ctx.font = font(13);
+    ctx.fillText(stat.label, cardX + 50, sy);
+    // 绘制数值
     ctx.textAlign = 'right';
     ctx.fillStyle = COLORS.textOnDark;
-    ctx.font = 'bold 16px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+    ctx.font = font(16, true);
     ctx.fillText(stat.value, cardX + cardW - 24, sy);
   });
 
   // ---- 评语 ----
   const commentY = height * 0.64;
   ctx.fillStyle = COLORS.textOnDarkMuted;
-  ctx.font = '14px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(14);
   ctx.textAlign = 'center';
   ctx.fillText(getComment(score), width / 2, commentY);
 
@@ -626,7 +640,11 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
       const ach = getAchievementById(achId);
       if (ach) {
         const ax = startX + i * (achW + 6) + achW / 2;
-        drawEmoji(ctx, ach.icon, ax, achY, 22);
+        if (ach.iconId) {
+          drawIcon(ctx, ach.iconId, ax, achY, 22);
+        } else {
+          drawEmoji(ctx, ach.icon, ax, achY, 22);
+        }
       }
     });
   }
@@ -638,7 +656,7 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
 
   // 分享提示
   ctx.fillStyle = COLORS.textOnDarkMuted;
-  ctx.font = '12px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(12);
   ctx.textAlign = 'center';
   ctx.fillText('分享给同事，看看谁更能摸鱼！', width / 2, height * 0.90);
 }
@@ -691,18 +709,22 @@ export function drawAchievementPopup(ctx, width, achievement, timer) {
   ctx.closePath();
   ctx.stroke();
 
-  // 图标
-  drawEmoji(ctx, achievement.icon, popupX + 28, popupY + popupH / 2, 24);
+  // 图标（优先矢量图标，回退 emoji）
+  if (achievement.iconId) {
+    drawIcon(ctx, achievement.iconId, popupX + 28, popupY + popupH / 2, 24);
+  } else {
+    drawEmoji(ctx, achievement.icon, popupX + 28, popupY + popupH / 2, 24);
+  }
 
   // 文字
   ctx.fillStyle = COLORS.scoreGold;
-  ctx.font = 'bold 14px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(14, true);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(`成就解锁: ${achievement.name}`, popupX + 50, popupY + popupH / 2 - 8);
 
   ctx.fillStyle = COLORS.textOnDarkMuted;
-  ctx.font = '11px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(11);
   ctx.fillText(achievement.desc, popupX + 50, popupY + popupH / 2 + 10);
 
   ctx.restore();
@@ -726,6 +748,9 @@ export function drawParticles(ctx, particles) {
       ctx.fillStyle = p.color;
       ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
       ctx.restore();
+    } else if (p.type === 'icon') {
+      // 矢量图标粒子（替代 emoji，保证移动端兼容）
+      drawIcon(ctx, p.iconId || 'sparkles', p.x, p.y, p.size);
     } else if (p.type === 'emoji') {
       drawEmoji(ctx, p.emoji || '✨', p.x, p.y, p.size);
     } else {

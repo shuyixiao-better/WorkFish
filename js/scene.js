@@ -8,7 +8,7 @@
  * - 老板出场的戏剧性效果
  */
 
-import { COLORS, roundRectPath, fillRoundRect } from './utils.js';
+import { COLORS, roundRectPath, fillRoundRect, font } from './utils.js';
 import { getShakeOffsetForEnv } from './effects.js';
 
 // ============================================================
@@ -219,7 +219,7 @@ function drawPoster(ctx, x, y, w, h) {
 
   // 文字
   ctx.fillStyle = COLORS.textPrimary;
-  ctx.font = `bold ${Math.max(9, w * 0.11)}px "PingFang SC", "Microsoft YaHei", Arial, sans-serif`;
+  ctx.font = font(Math.max(9, w * 0.11), true);
   ctx.textAlign = 'center';
   const lines = ['今天', '也要', '努力', '工作!'];
   const lineH = h * 0.18;
@@ -316,7 +316,7 @@ function drawComputer(ctx, x, y, w, h) {
     { text: '      browse_web()', color: '#79C0FF' },
   ];
 
-  ctx.font = `${Math.max(7, lineH * 0.8)}px "Courier New", monospace`;
+  ctx.font = font(Math.max(7, lineH * 0.8), false, 'mono');
   ctx.textAlign = 'left';
   codeLines.forEach((line, i) => {
     // 行号
@@ -339,7 +339,7 @@ function drawComputer(ctx, x, y, w, h) {
   ctx.fillStyle = '#161B22';
   ctx.fillRect(x + 5, y + h - 9, w - 10, 9);
   ctx.fillStyle = '#8B949E';
-  ctx.font = `${Math.max(6, lineH * 0.6)}px Arial`;
+  ctx.font = font(Math.max(6, lineH * 0.6));
   ctx.textAlign = 'right';
   ctx.fillText('摸鱼模式 v2.0', x + w - 10, y + h - 2);
 
@@ -1140,7 +1140,7 @@ export function drawWarningBar(ctx, x, y, width, height, progress, actualTimeout
   ctx.save();
   ctx.globalAlpha = pulse;
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = `bold ${height - 6}px "PingFang SC", "Microsoft YaHei", Arial, sans-serif`;
+  ctx.font = font(height - 6, true);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(`${remaining.toFixed(1)}s`, x + width / 2, y + height / 2);

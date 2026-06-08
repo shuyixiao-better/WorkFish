@@ -261,7 +261,7 @@ export function handleDisguise(state, boss) {
     if (isCloseCall) {
       state.score += 100; // 近身闪避额外加分
       triggerCloseCall(state);
-      showMessage(state, '😱 极限闪避！+100', 1.5, 'success');
+      showMessage(state, '极限闪避！+100', 1.5, 'success');
     } else {
       const comboText = state.combo > 1 ? ` (${state.combo}连击!)` : '';
       const ratingText = ratingConfig.label;

@@ -12,7 +12,7 @@
  * - 环境反应：咖啡抖动、纸张飞散
  */
 
-import { randomFloat, COLORS } from './utils.js';
+import { randomFloat, COLORS, font } from './utils.js';
 
 // ============================================================
 //  时序评级系统
@@ -322,7 +322,7 @@ export function drawRatingPopup(ctx, popup) {
   // 描边
   ctx.strokeStyle = 'rgba(0,0,0,0.3)';
   ctx.lineWidth = 4;
-  ctx.font = `bold ${popup.fontSize}px "PingFang SC", "Microsoft YaHei", Arial, sans-serif`;
+  ctx.font = font(popup.fontSize, true);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.strokeText(popup.text, 0, 0);
@@ -425,7 +425,7 @@ export function drawFailText(ctx, width, height, timer) {
   // 描边
   ctx.strokeStyle = 'rgba(0,0,0,0.4)';
   ctx.lineWidth = 5;
-  ctx.font = 'bold 36px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+  ctx.font = font(36, true);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.strokeText('被老板抓包了!', 0, 0);

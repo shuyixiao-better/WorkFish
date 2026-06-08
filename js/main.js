@@ -45,7 +45,7 @@ import {
   createRatingPopup, updateRatingPopup,
   getEnhancedShakeOffset,
 } from './effects.js';
-import { isPointInRect, randomFloat, easeOutBack, COLORS } from './utils.js';
+import { isPointInRect, randomFloat, easeOutBack, COLORS, font } from './utils.js';
 
 /**
  * 游戏主类
@@ -587,9 +587,9 @@ export class Game {
       }
     }
 
-    // 成功时的 emoji 粒子
+    // 成功时的矢量图标粒子（替代 emoji）
     if (type === 'success') {
-      const emojis = ['✨', '🌟', '💪', '👏'];
+      const iconIds = ['sparkles', 'star', 'muscle', 'clap'];
       for (let i = 0; i < 3; i++) {
         this.particles.push({
           x: cx + randomFloat(-25, 25),
@@ -603,8 +603,8 @@ export class Game {
           fadeSpeed: 0.9,
           rotation: 0,
           rotSpeed: 0,
-          type: 'emoji',
-          emoji: emojis[i % emojis.length],
+          type: 'icon',
+          iconId: iconIds[i % iconIds.length],
         });
       }
     }
@@ -727,7 +727,7 @@ export class Game {
       if (appearProgress > 0.6) {
         const bounce = Math.sin(this.boss.exclamationTimer * 6) * 4;
         ctx.fillStyle = '#E8453C';
-        ctx.font = 'bold 28px "PingFang SC", "Microsoft YaHei", Arial, sans-serif';
+        ctx.font = font(28, true);
         ctx.textAlign = 'center';
         const exX = this.boss.x + bossW / 2 + 38;
         const exY = this.boss.y - 12 + bounce;

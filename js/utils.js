@@ -127,6 +127,30 @@ export const COLORS = {
 };
 
 // ============================================================
+//  移动端 H5 兼容字体链
+//  按优先级：系统 emoji → iOS → Android → Windows → 通用回退
+// ============================================================
+export const FONT = {
+  // 中文字体链（覆盖 iOS / Android / Windows）
+  cn: '"PingFang SC", "Noto Sans SC", "Source Han Sans CN", "Microsoft YaHei", "WenQuanYi Micro Hei", "Helvetica Neue", Arial, sans-serif',
+  // 等宽字体（代码显示）
+  mono: '"SF Mono", "Menlo", "Consolas", "Noto Sans Mono", "Courier New", monospace',
+  // Emoji 字体链（仅用于 drawEmoji 回退）
+  emoji: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji", "EmojiOne", sans-serif',
+};
+
+/**
+ * 生成指定大小的字体字符串
+ * @param {number} size - 字号 px
+ * @param {boolean} bold - 是否粗体
+ * @param {string} family - 'cn' | 'mono' | 'emoji'
+ */
+export function font(size, bold = false, family = 'cn') {
+  const weight = bold ? 'bold ' : '';
+  return `${weight}${size}px ${FONT[family] || FONT.cn}`;
+}
+
+// ============================================================
 //  数学工具
 // ============================================================
 
@@ -424,7 +448,7 @@ export function drawRoundedButton(ctx, rect, text, colorTheme, opts = {}) {
   // 文字
   const displayText = icon ? `${icon}  ${text}` : text;
   ctx.fillStyle = textColor;
-  ctx.font = `bold ${fontSize}px "PingFang SC", "Microsoft YaHei", Arial, sans-serif`;
+  ctx.font = font(fontSize, true);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
@@ -439,15 +463,590 @@ export function drawRoundedButton(ctx, rect, text, colorTheme, opts = {}) {
 }
 
 /**
- * 绘制 emoji
+ * 绘制 emoji（回退到 fillText，用于装饰性大 emoji）
+ * 移动端 H5 Canvas 中 emoji 渲染不可靠，尽量用 drawIcon 替代
  */
 export function drawEmoji(ctx, emoji, x, y, size) {
   ctx.save();
-  ctx.font = `${size}px "PingFang SC", "Apple Color Emoji", "Segoe UI Emoji", Arial, sans-serif`;
+  ctx.font = `${size}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "PingFang SC", sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(emoji, x, y);
   ctx.restore();
+}
+
+// ============================================================
+//  矢量图标系统 — 替代 emoji fillText，解决移动端 H5 emoji 渲染问题
+// ============================================================
+
+/**
+ * 绘制矢量图标（替代 emoji 字符）
+ * 在 Canvas 2D 中直接画形状，保证跨平台一致性
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {string} iconId — 图标标识符
+ * @param {number} x — 中心 x
+ * @param {number} y — 中心 y
+ * @param {number} size — 图标尺寸（约等于 emoji 字号）
+ */
+export function drawIcon(ctx, iconId, x, y, size) {
+  ctx.save();
+  ctx.translate(x, y);
+  const s = size / 24; // 以 24px 为基准缩放
+
+  switch (iconId) {
+    case 'timer':
+    case 'clock':
+      _drawIconTimer(ctx, s);
+      break;
+    case 'star':
+      _drawIconStar(ctx, s);
+      break;
+    case 'shield':
+      _drawIconShield(ctx, s);
+      break;
+    case 'fire':
+      _drawIconFire(ctx, s);
+      break;
+    case 'sparkles':
+      _drawIconSparkles(ctx, s);
+      break;
+    case 'trophy':
+      _drawIconTrophy(ctx, s);
+      break;
+    case 'backpack':
+      _drawIconBackpack(ctx, s);
+      break;
+    case 'headphones':
+      _drawIconHeadphones(ctx, s);
+      break;
+    case 'crown':
+      _drawIconCrown(ctx, s);
+      break;
+    case 'clap':
+      _drawIconClap(ctx, s);
+      break;
+    case 'muscle':
+      _drawIconMuscle(ctx, s);
+      break;
+    case 'scream':
+      _drawIconScream(ctx, s);
+      break;
+    case 'movie':
+      _drawIconMovie(ctx, s);
+      break;
+    case 'laptop':
+      _drawIconLaptop(ctx, s);
+      break;
+    case 'phone':
+      _drawIconPhone(ctx, s);
+      break;
+    case 'coffee':
+      _drawIconCoffee(ctx, s);
+      break;
+    case 'briefcase':
+      _drawIconBriefcase(ctx, s);
+      break;
+    case 'paper':
+      _drawIconPaper(ctx, s);
+      break;
+    case 'handshake':
+      _drawIconHandshake(ctx, s);
+      break;
+    default:
+      // 未知图标 — 画一个圆点占位
+      ctx.fillStyle = '#999';
+      ctx.beginPath();
+      ctx.arc(0, 0, size * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+// ---- 内部图标绘制函数 ----
+
+function _drawIconTimer(ctx, s) {
+  // 秒表/计时器图标
+  ctx.strokeStyle = '#B0BEC5';
+  ctx.lineWidth = 2 * s;
+  ctx.lineCap = 'round';
+  // 圆
+  ctx.beginPath();
+  ctx.arc(0, 1 * s, 9 * s, 0, Math.PI * 2);
+  ctx.stroke();
+  // 顶部按钮
+  ctx.beginPath();
+  ctx.moveTo(0, -8 * s);
+  ctx.lineTo(0, -10 * s);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-3 * s, -10 * s);
+  ctx.lineTo(3 * s, -10 * s);
+  ctx.stroke();
+  // 指针
+  ctx.strokeStyle = '#E8453C';
+  ctx.lineWidth = 2 * s;
+  ctx.beginPath();
+  ctx.moveTo(0, 1 * s);
+  ctx.lineTo(0, -4 * s);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, 1 * s);
+  ctx.lineTo(4 * s, 3 * s);
+  ctx.stroke();
+  // 中心点
+  ctx.fillStyle = '#E8453C';
+  ctx.beginPath();
+  ctx.arc(0, 1 * s, 1.5 * s, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function _drawIconStar(ctx, s) {
+  // 五角星
+  const spikes = 5;
+  const outerR = 10 * s;
+  const innerR = 4 * s;
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  for (let i = 0; i < spikes * 2; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const angle = (i * Math.PI) / spikes - Math.PI / 2;
+    const px = Math.cos(angle) * r;
+    const py = Math.sin(angle) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+  // 高光
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.beginPath();
+  ctx.arc(-2 * s, -3 * s, 3 * s, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function _drawIconShield(ctx, s) {
+  // 盾牌
+  ctx.fillStyle = '#30D684';
+  ctx.beginPath();
+  ctx.moveTo(0, -10 * s);
+  ctx.quadraticCurveTo(10 * s, -8 * s, 10 * s, -2 * s);
+  ctx.quadraticCurveTo(10 * s, 6 * s, 0, 11 * s);
+  ctx.quadraticCurveTo(-10 * s, 6 * s, -10 * s, -2 * s);
+  ctx.quadraticCurveTo(-10 * s, -8 * s, 0, -10 * s);
+  ctx.closePath();
+  ctx.fill();
+  // 对勾
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 2.5 * s;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-4 * s, 0);
+  ctx.lineTo(-1 * s, 3.5 * s);
+  ctx.lineTo(5 * s, -3 * s);
+  ctx.stroke();
+}
+
+function _drawIconFire(ctx, s) {
+  // 火焰
+  ctx.fillStyle = '#FF6B35';
+  ctx.beginPath();
+  ctx.moveTo(0, -10 * s);
+  ctx.quadraticCurveTo(6 * s, -6 * s, 7 * s, 0);
+  ctx.quadraticCurveTo(8 * s, 6 * s, 3 * s, 9 * s);
+  ctx.quadraticCurveTo(1 * s, 10 * s, 0, 8 * s);
+  ctx.quadraticCurveTo(-1 * s, 10 * s, -3 * s, 9 * s);
+  ctx.quadraticCurveTo(-8 * s, 6 * s, -7 * s, 0);
+  ctx.quadraticCurveTo(-6 * s, -6 * s, 0, -10 * s);
+  ctx.closePath();
+  ctx.fill();
+  // 内焰
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.moveTo(0, -3 * s);
+  ctx.quadraticCurveTo(3 * s, -1 * s, 3 * s, 3 * s);
+  ctx.quadraticCurveTo(2 * s, 6 * s, 0, 6 * s);
+  ctx.quadraticCurveTo(-2 * s, 6 * s, -3 * s, 3 * s);
+  ctx.quadraticCurveTo(-3 * s, -1 * s, 0, -3 * s);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function _drawIconSparkles(ctx, s) {
+  // 闪光星星 ✨
+  ctx.fillStyle = '#FFD700';
+  // 大四角星
+  _drawFourPointStar(ctx, 0, 0, 8 * s, 3 * s);
+  // 小四角星
+  ctx.fillStyle = '#FFE44D';
+  _drawFourPointStar(ctx, -7 * s, -5 * s, 4 * s, 1.5 * s);
+  _drawFourPointStar(ctx, 6 * s, 5 * s, 3.5 * s, 1.2 * s);
+}
+
+function _drawFourPointStar(ctx, cx, cy, outerR, innerR) {
+  ctx.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const angle = (i * Math.PI) / 4;
+    const px = cx + Math.cos(angle) * r;
+    const py = cy + Math.sin(angle) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+function _drawIconTrophy(ctx, s) {
+  // 奖杯
+  ctx.fillStyle = '#FFD700';
+  // 杯身
+  ctx.beginPath();
+  ctx.moveTo(-7 * s, -8 * s);
+  ctx.lineTo(7 * s, -8 * s);
+  ctx.lineTo(5 * s, 2 * s);
+  ctx.lineTo(-5 * s, 2 * s);
+  ctx.closePath();
+  ctx.fill();
+  // 把手
+  ctx.strokeStyle = '#FFD700';
+  ctx.lineWidth = 2 * s;
+  ctx.beginPath();
+  ctx.arc(-8 * s, -3 * s, 4 * s, -Math.PI * 0.5, Math.PI * 0.5);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(8 * s, -3 * s, 4 * s, Math.PI * 0.5, -Math.PI * 0.5);
+  ctx.stroke();
+  // 底座
+  ctx.fillStyle = '#DAA520';
+  ctx.fillRect(-4 * s, 2 * s, 8 * s, 3 * s);
+  ctx.fillRect(-6 * s, 5 * s, 12 * s, 3 * s);
+  // 高光
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.fillRect(-5 * s, -7 * s, 3 * s, 8 * s);
+}
+
+function _drawIconBackpack(ctx, s) {
+  // 背包
+  ctx.fillStyle = '#5C6BC0';
+  // 主体
+  ctx.beginPath();
+  ctx.moveTo(-7 * s, -4 * s);
+  ctx.quadraticCurveTo(-7 * s, -8 * s, 0, -8 * s);
+  ctx.quadraticCurveTo(7 * s, -8 * s, 7 * s, -4 * s);
+  ctx.lineTo(7 * s, 8 * s);
+  ctx.quadraticCurveTo(7 * s, 10 * s, 5 * s, 10 * s);
+  ctx.lineTo(-5 * s, 10 * s);
+  ctx.quadraticCurveTo(-7 * s, 10 * s, -7 * s, 8 * s);
+  ctx.closePath();
+  ctx.fill();
+  // 前袋
+  ctx.fillStyle = '#7986CB';
+  ctx.beginPath();
+  ctx.moveTo(-5 * s, 2 * s);
+  ctx.lineTo(5 * s, 2 * s);
+  ctx.lineTo(5 * s, 7 * s);
+  ctx.quadraticCurveTo(5 * s, 9 * s, 3 * s, 9 * s);
+  ctx.lineTo(-3 * s, 9 * s);
+  ctx.quadraticCurveTo(-5 * s, 9 * s, -5 * s, 7 * s);
+  ctx.closePath();
+  ctx.fill();
+  // 扣
+  ctx.fillStyle = '#FFD700';
+  ctx.fillRect(-2 * s, 1 * s, 4 * s, 2.5 * s);
+}
+
+function _drawIconHeadphones(ctx, s) {
+  // 耳机
+  ctx.strokeStyle = '#4DA3FF';
+  ctx.lineWidth = 3 * s;
+  ctx.lineCap = 'round';
+  // 头带
+  ctx.beginPath();
+  ctx.arc(0, -1 * s, 9 * s, Math.PI * 1.15, Math.PI * 1.85);
+  ctx.stroke();
+  // 左耳罩
+  ctx.fillStyle = '#4DA3FF';
+  ctx.beginPath();
+  ctx.ellipse(-8.5 * s, 3 * s, 3.5 * s, 5 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 右耳罩
+  ctx.beginPath();
+  ctx.ellipse(8.5 * s, 3 * s, 3.5 * s, 5 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 耳罩内
+  ctx.fillStyle = '#2196F3';
+  ctx.beginPath();
+  ctx.ellipse(-8.5 * s, 3 * s, 2 * s, 3 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(8.5 * s, 3 * s, 2 * s, 3 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function _drawIconCrown(ctx, s) {
+  // 皇冠
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.moveTo(-10 * s, 4 * s);
+  ctx.lineTo(-8 * s, -6 * s);
+  ctx.lineTo(-3 * s, 0);
+  ctx.lineTo(0, -8 * s);
+  ctx.lineTo(3 * s, 0);
+  ctx.lineTo(8 * s, -6 * s);
+  ctx.lineTo(10 * s, 4 * s);
+  ctx.closePath();
+  ctx.fill();
+  // 底座
+  ctx.fillStyle = '#DAA520';
+  ctx.fillRect(-9 * s, 4 * s, 18 * s, 3.5 * s);
+  // 宝石
+  ctx.fillStyle = '#E8453C';
+  ctx.beginPath();
+  ctx.arc(0, -4 * s, 2 * s, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#4DA3FF';
+  ctx.beginPath();
+  ctx.arc(-6 * s, -2 * s, 1.5 * s, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(6 * s, -2 * s, 1.5 * s, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function _drawIconClap(ctx, s) {
+  // 拍手
+  ctx.fillStyle = '#FFD5B8';
+  // 左手
+  ctx.save();
+  ctx.rotate(-0.3);
+  ctx.beginPath();
+  ctx.ellipse(-3 * s, 0, 5 * s, 8 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  // 右手
+  ctx.save();
+  ctx.rotate(0.3);
+  ctx.beginPath();
+  ctx.ellipse(3 * s, 0, 5 * s, 8 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  // 闪光线
+  ctx.strokeStyle = '#FFD700';
+  ctx.lineWidth = 1.5 * s;
+  ctx.beginPath(); ctx.moveTo(-2 * s, -9 * s); ctx.lineTo(-4 * s, -12 * s); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(2 * s, -9 * s); ctx.lineTo(4 * s, -12 * s); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, -10 * s); ctx.lineTo(0, -13 * s); ctx.stroke();
+}
+
+function _drawIconMuscle(ctx, s) {
+  // 肌肉手臂
+  ctx.fillStyle = '#FFD5B8';
+  ctx.beginPath();
+  ctx.moveTo(-2 * s, 9 * s);
+  ctx.lineTo(-4 * s, 2 * s);
+  ctx.quadraticCurveTo(-8 * s, -2 * s, -6 * s, -6 * s);
+  ctx.quadraticCurveTo(-4 * s, -10 * s, 0, -8 * s);
+  ctx.quadraticCurveTo(4 * s, -10 * s, 6 * s, -6 * s);
+  ctx.quadraticCurveTo(8 * s, -2 * s, 4 * s, 2 * s);
+  ctx.lineTo(2 * s, 9 * s);
+  ctx.closePath();
+  ctx.fill();
+  // 肌肉线条
+  ctx.strokeStyle = '#E8B090';
+  ctx.lineWidth = 1.5 * s;
+  ctx.beginPath();
+  ctx.arc(-3 * s, -3 * s, 4 * s, -0.5, 1.2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(3 * s, -3 * s, 4 * s, 1.9, 3.6);
+  ctx.stroke();
+}
+
+function _drawIconScream(ctx, s) {
+  // 惊叫脸
+  ctx.fillStyle = '#FFE066';
+  ctx.beginPath();
+  ctx.arc(0, 0, 10 * s, 0, Math.PI * 2);
+  ctx.fill();
+  // 眼睛 - 瞪大
+  ctx.fillStyle = '#1A1D23';
+  ctx.beginPath();
+  ctx.ellipse(-3.5 * s, -2 * s, 2 * s, 3 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(3.5 * s, -2 * s, 2 * s, 3 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 嘴 - O 型
+  ctx.fillStyle = '#1A1D23';
+  ctx.beginPath();
+  ctx.ellipse(0, 4 * s, 3.5 * s, 4 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#E8453C';
+  ctx.beginPath();
+  ctx.ellipse(0, 5 * s, 2.5 * s, 2.5 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function _drawIconMovie(ctx, s) {
+  // 电影板
+  ctx.fillStyle = '#37474F';
+  ctx.fillRect(-9 * s, -6 * s, 18 * s, 14 * s);
+  // 条纹
+  ctx.fillStyle = '#FFFFFF';
+  for (let i = 0; i < 5; i++) {
+    ctx.fillRect((-8 + i * 4) * s, -6 * s, 2 * s, 4 * s);
+  }
+  // 底部
+  ctx.fillStyle = '#263238';
+  ctx.fillRect(-9 * s, -2 * s, 18 * s, 2 * s);
+}
+
+function _drawIconLaptop(ctx, s) {
+  // 笔记本电脑
+  ctx.fillStyle = '#546E7A';
+  ctx.fillRect(-9 * s, -6 * s, 18 * s, 11 * s);
+  ctx.fillStyle = '#4DA3FF';
+  ctx.fillRect(-7 * s, -4 * s, 14 * s, 7 * s);
+  // 底座
+  ctx.fillStyle = '#78909C';
+  ctx.beginPath();
+  ctx.moveTo(-11 * s, 5 * s);
+  ctx.lineTo(11 * s, 5 * s);
+  ctx.lineTo(10 * s, 8 * s);
+  ctx.lineTo(-10 * s, 8 * s);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function _drawIconPhone(ctx, s) {
+  // 手机
+  ctx.fillStyle = '#37474F';
+  ctx.beginPath();
+  ctx.moveTo(-5 * s, -10 * s);
+  ctx.lineTo(5 * s, -10 * s);
+  ctx.quadraticCurveTo(7 * s, -10 * s, 7 * s, -8 * s);
+  ctx.lineTo(7 * s, 8 * s);
+  ctx.quadraticCurveTo(7 * s, 10 * s, 5 * s, 10 * s);
+  ctx.lineTo(-5 * s, 10 * s);
+  ctx.quadraticCurveTo(-7 * s, 10 * s, -7 * s, 8 * s);
+  ctx.lineTo(-7 * s, -8 * s);
+  ctx.quadraticCurveTo(-7 * s, -10 * s, -5 * s, -10 * s);
+  ctx.closePath();
+  ctx.fill();
+  // 屏幕
+  ctx.fillStyle = '#4DA3FF';
+  ctx.fillRect(-5 * s, -7 * s, 10 * s, 13 * s);
+  // Home 键
+  ctx.fillStyle = '#546E7A';
+  ctx.beginPath();
+  ctx.arc(0, 8 * s, 1.5 * s, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function _drawIconCoffee(ctx, s) {
+  // 咖啡杯
+  ctx.fillStyle = '#FFFFFF';
+  ctx.strokeStyle = '#DEE2E6';
+  ctx.lineWidth = 1 * s;
+  ctx.beginPath();
+  ctx.moveTo(-6 * s, -4 * s);
+  ctx.lineTo(6 * s, -4 * s);
+  ctx.lineTo(5 * s, 7 * s);
+  ctx.quadraticCurveTo(5 * s, 9 * s, 3 * s, 9 * s);
+  ctx.lineTo(-3 * s, 9 * s);
+  ctx.quadraticCurveTo(-5 * s, 9 * s, -5 * s, 7 * s);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  // 咖啡液
+  ctx.fillStyle = '#5C3A1E';
+  ctx.beginPath();
+  ctx.ellipse(0, -2 * s, 5 * s, 2 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // 把手
+  ctx.strokeStyle = '#DEE2E6';
+  ctx.lineWidth = 2 * s;
+  ctx.beginPath();
+  ctx.arc(7 * s, 1 * s, 3.5 * s, -0.5, 1.5);
+  ctx.stroke();
+  // 蒸汽
+  ctx.strokeStyle = 'rgba(180,185,195,0.5)';
+  ctx.lineWidth = 1.2 * s;
+  ctx.beginPath();
+  ctx.moveTo(-2 * s, -6 * s);
+  ctx.quadraticCurveTo(-1 * s, -9 * s, -2 * s, -11 * s);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(2 * s, -6 * s);
+  ctx.quadraticCurveTo(3 * s, -8 * s, 2 * s, -10 * s);
+  ctx.stroke();
+}
+
+function _drawIconBriefcase(ctx, s) {
+  // 公文包
+  ctx.fillStyle = '#5C3A1E';
+  ctx.beginPath();
+  ctx.moveTo(-9 * s, -3 * s);
+  ctx.lineTo(9 * s, -3 * s);
+  ctx.quadraticCurveTo(10 * s, -3 * s, 10 * s, -1 * s);
+  ctx.lineTo(10 * s, 7 * s);
+  ctx.quadraticCurveTo(10 * s, 9 * s, 8 * s, 9 * s);
+  ctx.lineTo(-8 * s, 9 * s);
+  ctx.quadraticCurveTo(-10 * s, 9 * s, -10 * s, 7 * s);
+  ctx.lineTo(-10 * s, -1 * s);
+  ctx.quadraticCurveTo(-10 * s, -3 * s, -9 * s, -3 * s);
+  ctx.closePath();
+  ctx.fill();
+  // 把手
+  ctx.strokeStyle = '#5C3A1E';
+  ctx.lineWidth = 2.5 * s;
+  ctx.beginPath();
+  ctx.arc(0, -5 * s, 4 * s, Math.PI, Math.PI * 2);
+  ctx.stroke();
+  // 扣
+  ctx.fillStyle = '#FFD700';
+  ctx.fillRect(-2 * s, -1 * s, 4 * s, 3 * s);
+}
+
+function _drawIconPaper(ctx, s) {
+  // 文档
+  ctx.fillStyle = '#FFFFFF';
+  ctx.strokeStyle = '#DEE2E6';
+  ctx.lineWidth = 1 * s;
+  ctx.fillRect(-7 * s, -9 * s, 14 * s, 18 * s);
+  ctx.strokeRect(-7 * s, -9 * s, 14 * s, 18 * s);
+  // 文字线
+  ctx.fillStyle = '#CED4DA';
+  for (let i = 0; i < 4; i++) {
+    ctx.fillRect(-4 * s, (-5 + i * 4) * s, (8 - i * 1.5) * s, 1.5 * s);
+  }
+}
+
+function _drawIconHandshake(ctx, s) {
+  // 握手
+  ctx.fillStyle = '#FFD5B8';
+  // 左手
+  ctx.save();
+  ctx.rotate(-0.15);
+  ctx.beginPath();
+  ctx.ellipse(-4 * s, 0, 7 * s, 5 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  // 右手
+  ctx.fillStyle = '#E8B090';
+  ctx.save();
+  ctx.rotate(0.15);
+  ctx.beginPath();
+  ctx.ellipse(4 * s, 0, 7 * s, 5 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  // 手指
+  ctx.fillStyle = '#FFD5B8';
+  ctx.beginPath();
+  ctx.ellipse(0, -4 * s, 3 * s, 2 * s, 0, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 /**
@@ -511,14 +1110,14 @@ export function loadData(key, defaultValue = null) {
 // ============================================================
 
 export const ACHIEVEMENTS = {
-  FIRST_DODGE: { id: 'first_dodge', name: '初次逃脱', desc: '首次成功躲避老板', icon: '🛡️' },
-  COMBO_5: { id: 'combo_5', name: '五连闪避', desc: '达成5连击', icon: '🔥' },
-  COMBO_10: { id: 'combo_10', name: '完美表演', desc: '达成10连击', icon: '🌟' },
-  CLOSE_CALL: { id: 'close_call', name: '惊魂一刻', desc: '触发一次极限闪避', icon: '😱' },
-  SCORE_500: { id: 'score_500', name: '摸鱼达人', desc: '单局得分超过500', icon: '💪' },
-  SCORE_1000: { id: 'score_1000', name: '摸鱼之王', desc: '单局得分超过1000', icon: '👑' },
-  FULL_GAME: { id: 'full_game', name: '完美谢幕', desc: '成功坚持30秒', icon: '🎬' },
-  ITEM_COLLECTOR: { id: 'item_collector', name: '道具收集者', desc: '单局使用3个道具', icon: '🎒' },
+  FIRST_DODGE: { id: 'first_dodge', name: '初次逃脱', desc: '首次成功躲避老板', icon: '🛡️', iconId: 'shield' },
+  COMBO_5: { id: 'combo_5', name: '五连闪避', desc: '达成5连击', icon: '🔥', iconId: 'fire' },
+  COMBO_10: { id: 'combo_10', name: '完美表演', desc: '达成10连击', icon: '🌟', iconId: 'star' },
+  CLOSE_CALL: { id: 'close_call', name: '惊魂一刻', desc: '触发一次极限闪避', icon: '😱', iconId: 'scream' },
+  SCORE_500: { id: 'score_500', name: '摸鱼达人', desc: '单局得分超过500', icon: '💪', iconId: 'muscle' },
+  SCORE_1000: { id: 'score_1000', name: '摸鱼之王', desc: '单局得分超过1000', icon: '👑', iconId: 'crown' },
+  FULL_GAME: { id: 'full_game', name: '完美谢幕', desc: '成功坚持30秒', icon: '🎬', iconId: 'movie' },
+  ITEM_COLLECTOR: { id: 'item_collector', name: '道具收集者', desc: '单局使用3个道具', icon: '🎒', iconId: 'backpack' },
 };
 
 /**

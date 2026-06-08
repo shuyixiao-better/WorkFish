@@ -10,7 +10,7 @@
  */
 
 import { ItemType, showMessage, addScorePopup, triggerFlash } from './gameState.js';
-import { COLORS, randomFloat, isPointInCircle, drawEmoji, easeOutBack } from './utils.js';
+import { COLORS, randomFloat, isPointInCircle, drawIcon, font, easeOutBack } from './utils.js';
 
 /**
  * 道具定义
@@ -18,7 +18,7 @@ import { COLORS, randomFloat, isPointInCircle, drawEmoji, easeOutBack } from './
 const ITEM_DEFS = {
   [ItemType.COFFEE]: {
     name: '提神咖啡',
-    icon: '☕',
+    iconId: 'coffee',
     color: COLORS.itemCoffee,
     glowColor: COLORS.itemCoffeeGlow,
     duration: 8,  // 持续秒数（覆盖一次老板遭遇）
@@ -26,7 +26,7 @@ const ITEM_DEFS = {
   },
   [ItemType.HEADPHONE]: {
     name: '降噪耳机',
-    icon: '🎧',
+    iconId: 'headphones',
     color: COLORS.itemHeadphone,
     glowColor: COLORS.itemHeadphoneGlow,
     duration: 12,
@@ -34,7 +34,7 @@ const ITEM_DEFS = {
   },
   [ItemType.COLLEAGUE]: {
     name: '同事掩护',
-    icon: '🤝',
+    iconId: 'handshake',
     color: COLORS.itemColleague,
     glowColor: COLORS.itemColleagueGlow,
     duration: 15,
@@ -138,7 +138,7 @@ export function collectItem(state, item) {
     def,
   };
 
-  showMessage(state, `${def.icon} ${def.name}已激活！`, 1.5, 'success');
+  showMessage(state, `${def.name}已激活！`, 1.5, 'success');
   addScorePopup(state, '+25', item.x, item.y - 20, def.color, 1.2);
   state.score += 25;
   triggerFlash(state, def.color, 0.15);
@@ -201,8 +201,8 @@ export function drawFloatingItem(ctx, item) {
   ctx.arc(-radius * 0.25, -radius * 0.25, radius * 0.45, 0, Math.PI * 2);
   ctx.fill();
 
-  // 图标
-  drawEmoji(ctx, def.icon, 0, 1, radius * 0.9);
+  // 图标（使用矢量图标替代 emoji）
+  drawIcon(ctx, def.iconId, 0, 1, radius * 0.9);
 
   ctx.restore();
 }
@@ -243,8 +243,8 @@ export function drawActiveItemIndicator(ctx, x, y, activeItem) {
   ctx.arc(0, 0, h / 2, 0, Math.PI * 2);
   ctx.fill();
 
-  // 图标
-  drawEmoji(ctx, def.icon, 0, 1, h * 0.55);
+  // 图标（使用矢量图标替代 emoji）
+  drawIcon(ctx, def.iconId, 0, 1, h * 0.55);
 
   ctx.restore();
 }
@@ -269,7 +269,7 @@ export function isColleagueActive(state) {
 export function useColleagueCover(state) {
   if (isColleagueActive(state)) {
     state.activeItem = null;
-    showMessage(state, '🤝 同事帮你掩护了！', 1.5, 'success');
+    showMessage(state, '同事帮你掩护了！', 1.5, 'success');
     addScorePopup(state, '掩护成功!', state.width ? state.width / 2 : 180, 200, COLORS.itemColleague, 1.3);
     return true;
   }

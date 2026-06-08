@@ -1,45 +1,66 @@
 /**
- * boss.js - 老板出现和检测逻辑模块
- * 管理老板的出现时机、显示、消失逻辑和视觉效果
+ * boss.js - 老板AI模块 v2.0
+ * 
+ * 增强特性：
+ * - 三种出现风格：normal（普通）、sneaky（偷袭）、urgent（紧急巡查）
+ * - 根据游戏阶段动态调整行为
+ * - 更丰富的入场动画类型
+ * - 耳机预警支持
+ * - 同事掩护自动处理
  */
 
-import { randomFloat, getBossInterval } from './utils.js';
-import { GameStatus, PlayerStatus, showMessage, triggerShake } from './gameState.js';
+import { randomFloat, getBossInterval, getBossTimeout } from './utils.js';
+import {
+  GameStatus, PlayerStatus,
+  showMessage, triggerShake, triggerFlash,
+  addScorePopup, triggerCloseCall
+} from './gameState.js';
 
 /**
  * 创建老板数据对象
  */
 export function createBoss() {
   return {
-    // 老板位置
+    // 位置
     x: 0,
     y: 0,
 
-    // 老板外观
+    // 外观
     width: 140,
     height: 180,
 
-    // 老板动画
+    // 出现动画
     appearTimer: 0,
-    appearDuration: 0.35,
+    appearDuration: 0.4,
     disappearTimer: 0,
-    disappearDuration: 0.25,
+    disappearDuration: 0.3,
 
-    // 动画类型：'scale'（缩放出现）| 'slideRight'（从右滑入）
-    appearType: 'scale',
+    // 入场类型
+    appearType: 'scale',       // 'scale' | 'slideRight' | 'slideUp' | 'fadeZoom'
+    disappearType: 'fade',     // 'fade' | 'shrink' | 'slideLeft'
 
-    // 老板表情
-    expression: 'angry',
+    // 表情
+    expression: 'angry',       // 'angry' | 'surprised' | 'suspicious' | 'furious'
 
-    // 老板状态
+    // 老板风格
+    style: 'normal',           // 'normal' | 'sneaky' | 'urgent'
+
+    // 状态
     isAppearing: false,
     isDisappearing: false,
 
-    // 警告进度条
-    warningProgress: 0,
-
-    // "!" 指示器动画
+    // 感叹号动画
     exclamationTimer: 0,
+
+    // 预警状态（耳机道具）
+    warningActive: false,
+    warningTimer: 0,
+
+    // 巡逻步行动画
+    walkPhase: 0,
+
+    // 阴影强度
+    shadowIntensity: 0,
   };
 }
 
@@ -68,23 +89,42 @@ export function updateBoss(state, boss, deltaTime) {
     }
   }
 
-  // 更新 "!" 感叹号动画
+  // 更新感叹号动画
   if (state.bossVisible && !boss.isDisappearing) {
     boss.exclamationTimer += deltaTime;
   } else {
     boss.exclamationTimer = 0;
   }
 
-  // 老板可见时更新警告进度
+  // 更新巡逻步行动画
+  boss.walkPhase += deltaTime * 3;
+
+  // 更新阴影强度
+  if (state.bossVisible) {
+    boss.shadowIntensity = Math.min(1, boss.shadowIntensity + deltaTime * 2);
+  } else {
+    boss.shadowIntensity = Math.max(0, boss.shadowIntensity - deltaTime * 3);
+  }
+
+  // 更新预警（耳机道具效果）
+  if (boss.warningActive) {
+    boss.warningTimer -= deltaTime;
+    if (boss.warningTimer <= 0) {
+      boss.warningActive = false;
+    }
+  }
+
+  // 老板可见时检查超时
   if (state.bossVisible && !boss.isDisappearing) {
     const elapsed = (Date.now() / 1000) - state.bossAppearTime;
-    boss.warningProgress = Math.min(elapsed / state.bossTimeout, 1);
+    const timeout = state.bossTimeout;
 
-    // 检查是否超时
-    if (elapsed >= state.bossTimeout) {
+    if (elapsed >= timeout) {
+      // 超时 - 游戏结束
       state.status = GameStatus.GAME_OVER;
-      showMessage(state, '你被老板抓包了！', 2);
-      triggerShake(state, 12, 0.6);
+      showMessage(state, '你被老板抓包了！', 2, 'danger');
+      triggerShake(state, 14, 0.7);
+      triggerFlash(state, '#FF0000', 0.3);
     }
   }
 }
@@ -99,74 +139,165 @@ export function shouldBossAppear(state, boss) {
 }
 
 /**
- * 让老板出现
+ * 让老板出现 - 增强版
  */
-export function makeBossAppear(state, boss, canvasWidth, canvasHeight) {
+export function makeBossAppear(state, boss, canvasWidth, canvasHeight, headphoneWarning) {
   state.bossVisible = true;
   state.bossAppearTime = Date.now() / 1000;
   state.playerStatus = PlayerStatus.IDLE;
 
-  // 重置老板动画
+  // 动态反应时间
+  state.bossTimeout = getBossTimeout(state.elapsedTime);
+
+  // 重置动画
   boss.isAppearing = true;
   boss.isDisappearing = false;
   boss.appearTimer = 0;
   boss.disappearTimer = 0;
-  boss.warningProgress = 0;
   boss.exclamationTimer = 0;
+  boss.warningActive = false;
 
-  // 随机选择出现动画类型
-  boss.appearType = Math.random() > 0.5 ? 'scale' : 'slideRight';
+  // 选择出现风格（根据游戏进度）
+  const elapsed = state.elapsedTime;
+  const styleRoll = Math.random();
 
-  // 设置老板位置
-  boss.x = (canvasWidth - boss.width) / 2;
-  boss.y = canvasHeight * 0.18;
-
-  // 表情：根据游戏进度，后期老板更生气
-  if (state.elapsedTime > 20) {
-    boss.expression = 'angry';
-  } else if (state.elapsedTime > 10) {
-    boss.expression = Math.random() > 0.5 ? 'angry' : 'suspicious';
+  if (elapsed > 20) {
+    // 后期：更多紧急巡查
+    boss.style = styleRoll < 0.3 ? 'sneaky' : styleRoll < 0.6 ? 'urgent' : 'normal';
+  } else if (elapsed > 10) {
+    boss.style = styleRoll < 0.35 ? 'sneaky' : styleRoll < 0.55 ? 'urgent' : 'normal';
   } else {
-    boss.expression = 'suspicious';
+    boss.style = styleRoll < 0.4 ? 'sneaky' : 'normal';
+  }
+
+  state.bossStyle = boss.style;
+
+  // 根据风格调整参数
+  switch (boss.style) {
+    case 'sneaky':
+      boss.appearDuration = 0.5;    // 偷袭：出现更慢
+      state.bossTimeout += 0.2;     // 多给一点反应时间
+      break;
+    case 'urgent':
+      boss.appearDuration = 0.25;   // 紧急：出现更快
+      state.bossTimeout -= 0.15;    // 反应时间更短
+      break;
+    default:
+      boss.appearDuration = 0.35;
+  }
+
+  // 选择入场动画
+  const animTypes = ['scale', 'slideRight', 'slideUp', 'fadeZoom'];
+  boss.appearType = animTypes[Math.floor(Math.random() * animTypes.length)];
+
+  // 老板位置
+  boss.x = (canvasWidth - boss.width) / 2;
+  boss.y = canvasHeight * 0.16;
+
+  // 表情
+  if (elapsed > 22) {
+    boss.expression = styleRoll < 0.5 ? 'furious' : 'angry';
+  } else if (elapsed > 12) {
+    boss.expression = Math.random() > 0.4 ? 'angry' : 'suspicious';
+  } else {
+    boss.expression = Math.random() > 0.5 ? 'suspicious' : 'angry';
   }
 
   // 计算下次出现时间
-  const interval = getBossInterval(state.elapsedTime);
+  const interval = getBossInterval(elapsed);
   const nextInterval = randomFloat(interval[0], interval[1]);
   state.nextBossTime = state.elapsedTime + nextInterval;
 
-  // 显示提示和震动
-  showMessage(state, '老板来了！', 0.8);
-  triggerShake(state, 4, 0.25);
+  // 提示和震动
+  const styleText = {
+    normal: '老板来了！',
+    sneaky: '老板悄悄靠近...',
+    urgent: '老板紧急巡查！！',
+  };
+  showMessage(state, styleText[boss.style] || '老板来了！', 0.8, boss.style === 'urgent' ? 'danger' : 'warning');
+
+  const shakeIntensity = boss.style === 'urgent' ? 6 : 4;
+  triggerShake(state, shakeIntensity, 0.3);
 }
 
 /**
- * 处理玩家点击伪装按钮
+ * 触发耳机预警
+ */
+export function triggerHeadphoneWarning(boss, secondsBefore) {
+  boss.warningActive = true;
+  boss.warningTimer = secondsBefore;
+}
+
+/**
+ * 处理玩家点击伪装按钮 - 增强版
  */
 export function handleDisguise(state, boss) {
-  if (!state.bossVisible || boss.isDisappearing) return false;
+  if (!state.bossVisible || boss.isDisappearing) return { success: false };
 
   const reactionTime = (Date.now() / 1000) - state.bossAppearTime;
+  const timeout = state.bossTimeout;
 
-  if (reactionTime <= state.bossTimeout) {
+  if (reactionTime <= timeout) {
     // 成功伪装
     state.dodgeCount++;
     state.combo++;
-    state.score += 50;
+    state.maxCombo = Math.max(state.maxCombo, state.combo);
 
-    // 老板惊讶消失
+    // 连击倍率加分
+    const comboMultiplier = Math.min(state.combo, 10);
+    const baseScore = 50;
+    const bonusScore = baseScore * comboMultiplier;
+    state.score += bonusScore;
+
+    // 近身闪避检测（在最后 0.3 秒内躲避）
+    const isCloseCall = reactionTime > timeout - 0.3;
+    if (isCloseCall) {
+      state.score += 100; // 近身闪避额外加分
+      triggerCloseCall(state);
+      showMessage(state, '😱 极限闪避！+100', 1.5, 'success');
+    } else {
+      const comboText = state.combo > 1 ? ` (${state.combo}连击!)` : '';
+      showMessage(state, `安全！老板没发现${comboText}`, 1.2, 'success');
+    }
+
+    // 老板消失
     boss.isDisappearing = true;
     boss.disappearTimer = 0;
     boss.expression = 'surprised';
 
-    // 显示成功提示
-    const comboText = state.combo > 1 ? ` (${state.combo}连击!)` : '';
-    showMessage(state, `安全！老板没发现${comboText}`, 1.5);
+    // 选择消失动画
+    const disappearTypes = ['fade', 'shrink', 'slideLeft'];
+    boss.disappearType = disappearTypes[Math.floor(Math.random() * disappearTypes.length)];
 
-    return true;
+    triggerFlash(state, '#30D684', 0.1);
+
+    return {
+      success: true,
+      closeCall: isCloseCall,
+      combo: state.combo,
+      score: bonusScore,
+    };
   }
 
-  return false;
+  return { success: false };
+}
+
+/**
+ * 同事掩护自动处理
+ */
+export function handleColleagueCover(state, boss, canvasCenterX) {
+  state.dodgeCount++;
+  state.combo++;
+  state.maxCombo = Math.max(state.maxCombo, state.combo);
+  state.score += 50;
+
+  boss.isDisappearing = true;
+  boss.disappearTimer = 0;
+  boss.expression = 'surprised';
+  boss.disappearType = 'slideLeft';
+
+  showMessage(state, '🤝 同事帮你解围了！', 1.5, 'success');
+  addScorePopup(state, '+50 掩护', canvasCenterX || 180, 200, '#30D684', 1.2);
 }
 
 /**
@@ -183,16 +314,4 @@ export function getAppearProgress(boss) {
 export function getDisappearProgress(boss) {
   if (!boss.isDisappearing) return 0;
   return boss.disappearTimer / boss.disappearDuration;
-}
-
-/**
- * 获取老板表情图标
- */
-export function getBossExpressionIcon(expression) {
-  const icons = {
-    'angry': '😠',
-    'suspicious': '🤨',
-    'surprised': '😲',
-  };
-  return icons[expression] || '😠';
 }

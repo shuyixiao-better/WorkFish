@@ -9,38 +9,38 @@
 //  全局色彩系统 - 专业级设计 Token
 // ============================================================
 export const COLORS = {
-  // ---- 品牌色 ----
-  primary: '#E8453C',
-  primaryLight: '#FF7B73',
-  primaryDark: '#C53028',
-  primaryGlow: 'rgba(232,69,60,0.35)',
+  // ---- 品牌色（冷蓝色调） ----
+  primary: '#4A90E2',
+  primaryLight: '#6BA8F0',
+  primaryDark: '#357ABD',
+  primaryGlow: 'rgba(74,144,226,0.35)',
 
   // ---- 语义色 ----
-  success: '#30D684',
-  successDark: '#22B56E',
-  successGlow: 'rgba(48,214,132,0.3)',
+  success: '#35C759',
+  successDark: '#28A745',
+  successGlow: 'rgba(53,199,89,0.3)',
   warning: '#FFB627',
   warningDark: '#E5A020',
   warningGlow: 'rgba(255,182,39,0.3)',
-  danger: '#E8453C',
-  dangerDark: '#C53028',
-  dangerGlow: 'rgba(232,69,60,0.3)',
-  info: '#4DA3FF',
-  infoDark: '#3580D4',
+  danger: '#FF6B4A',
+  dangerDark: '#FF4D3D',
+  dangerGlow: 'rgba(255,107,74,0.3)',
+  info: '#4A90E2',
+  infoDark: '#357ABD',
 
   // ---- 办公室场景 ----
-  wallBase: '#F0EBE3',
-  wallPattern: '#E8E2D8',
-  wallAccent: '#DDD5C8',
-  floorBase: '#9B8B74',
-  floorDark: '#7A6C58',
-  floorPlank: 'rgba(0,0,0,0.06)',
-  baseboard: '#C8B89E',
+  wallBase: '#F4F8FB',
+  wallPattern: '#EAF0F5',
+  wallAccent: '#DEE6EE',
+  floorBase: '#D8B98A',
+  floorDark: '#C4A274',
+  floorPlank: 'rgba(0,0,0,0.05)',
+  baseboard: '#D0C0A8',
 
   // ---- 木纹 ----
-  deskTop: '#C9A87C',
-  deskTopLight: '#D4B78E',
-  deskEdge: '#A88B64',
+  deskTop: '#B88A5A',
+  deskTopLight: '#C99E6E',
+  deskEdge: '#A07848',
   deskLeg: '#8B7355',
   deskHighlight: 'rgba(255,255,255,0.12)',
 
@@ -51,9 +51,9 @@ export const COLORS = {
   cloud: 'rgba(255,255,255,0.85)',
 
   // ---- 文字 ----
-  textPrimary: '#1A1D23',
-  textSecondary: '#5F6B7A',
-  textTertiary: '#8E99A8',
+  textPrimary: '#263238',
+  textSecondary: '#607D8B',
+  textTertiary: '#90A4AE',
   textOnDark: '#F8F9FA',
   textOnDarkMuted: 'rgba(248,249,250,0.65)',
 
@@ -61,69 +61,79 @@ export const COLORS = {
   surfaceLight: 'rgba(255,255,255,0.95)',
   surfaceGlass: 'rgba(255,255,255,0.08)',
   surfaceGlassBorder: 'rgba(255,255,255,0.12)',
-  surfaceDark: 'rgba(26,29,35,0.88)',
-  surfaceDarkBorder: 'rgba(255,255,255,0.08)',
+  surfaceDark: 'rgba(38,50,56,0.88)',
+  surfaceDarkBorder: 'rgba(224,231,239,0.8)',
 
-  // ---- 毛玻璃 ----
-  glass: 'rgba(26,29,35,0.45)',
-  glassBorder: 'rgba(255,255,255,0.15)',
-  glassHighlight: 'rgba(255,255,255,0.06)',
+  // ---- 毛玻璃（半透明白色卡片） ----
+  glass: 'rgba(255,255,255,0.92)',
+  glassBorder: 'rgba(224,231,239,0.8)',
+  glassHighlight: 'rgba(255,255,255,0.5)',
+  glassShadow: 'rgba(38,50,56,0.10)',
 
   // ---- 分数 ----
-  scoreGold: '#FFD700',
-  scoreGoldGlow: 'rgba(255,215,0,0.35)',
+  scoreGold: '#FFB340',
+  scoreGoldGlow: 'rgba(255,179,64,0.35)',
 
   // ---- 怀疑值 ----
-  suspicionLow: '#30D684',
+  suspicionLow: '#35C759',
   suspicionMid: '#FFB627',
-  suspicionHigh: '#E8453C',
+  suspicionHigh: '#FF6B4A',
 
   // ---- 道具色 ----
   itemCoffee: '#8B6340',
   itemCoffeeGlow: 'rgba(139,99,64,0.4)',
-  itemHeadphone: '#4DA3FF',
-  itemHeadphoneGlow: 'rgba(77,163,255,0.4)',
-  itemColleague: '#30D684',
-  itemColleagueGlow: 'rgba(48,214,132,0.4)',
+  itemHeadphone: '#4A90E2',
+  itemHeadphoneGlow: 'rgba(74,144,226,0.4)',
+  itemColleague: '#35C759',
+  itemColleagueGlow: 'rgba(53,199,89,0.4)',
 
   // ---- 菜单页 ----
-  menuGradTop: '#FFB347',
-  menuGradMid: '#FF8C42',
-  menuGradBottom: '#E8453C',
+  menuGradTop: '#DDF2FF',
+  menuGradMid: '#EAF6FF',
+  menuGradBottom: '#F8FCFF',
 
-  // ---- 结算页 ----
-  overGradTop: '#2C3040',
-  overGradMid: '#1E2230',
-  overGradBottom: '#14171E',
+  // ---- 结算页（浅色卡片风格） ----
+  overGradTop: '#EEF4F9',
+  overGradMid: '#F6FAFB',
+  overGradBottom: '#FFFFFF',
 
   // ---- 角色 ----
   playerSkin: '#FFD5B8',
   playerSkinShadow: '#E8B898',
   playerHair: '#3D2B1F',
-  playerShirt: '#5B9BD5',
-  playerShirtDark: '#4A85B8',
+  playerShirt: '#4A90E2',
+  playerShirtDark: '#357ABD',
   playerPants: '#3D4555',
   bossSkin: '#F0C8A0',
   bossSkinShadow: '#D4A878',
   bossHair: '#1A1A2E',
   bossSuit: '#2C3E50',
   bossSuitDark: '#1E2D3D',
-  bossTie: '#C0392B',
+  bossTie: '#FF6B4A',
 
   // ---- 粒子 ----
-  particleSuccess: '#30D684',
-  particleDanger: '#E8453C',
-  particleGold: '#FFD700',
+  particleSuccess: '#35C759',
+  particleDanger: '#FF6B4A',
+  particleGold: '#FFB340',
   particleStar: '#FFE066',
   particleCombo: '#FF6B9D',
 
-  // ---- 按钮主题 ----
-  btnPrimary: ['#FF7B73', '#E8453C'],
-  btnSuccess: ['#4AE88E', '#30D684'],
+  // ---- 按钮主题（渐变） ----
+  btnPrimary: ['#5BA0F0', '#4A90E2'],
+  btnSuccess: ['#4CD964', '#35C759'],
   btnWarning: ['#FFD166', '#FFB627'],
-  btnDisabled: ['#6B7280', '#4B5563'],
-  btnDanger: ['#FF7B73', '#C53028'],
-  btnInfo: ['#6BB8FF', '#4DA3FF'],
+  btnDisabled: ['#B0BEC5', '#90A4AE'],
+  btnDanger: ['#FF7A59', '#FF4D3D'],
+  btnInfo: ['#6BB8FF', '#4A90E2'],
+
+  // ---- 卡片/分割 ----
+  cardWhite: '#FFFFFF',
+  divider: '#E0E7EF',
+
+  // ---- 状态色 ----
+  statusIdle: '#35C759',
+  statusWorking: '#4A90E2',
+  statusBoss: '#FF6B4A',
 };
 
 // ============================================================
@@ -220,13 +230,10 @@ export function formatScore(score) {
  * 获取称号 - 更细化的分级
  */
 export function getTitle(score) {
-  if (score < 150) return '实习摸鱼员';
-  if (score < 300) return '摸鱼新手';
+  if (score < 200) return '实习摸鱼员';
   if (score < 500) return '职场老油条';
-  if (score < 700) return '摸鱼达人';
-  if (score < 900) return '办公室影帝';
-  if (score < 1200) return '摸鱼宗师';
-  return '摸鱼之王';
+  if (score < 800) return '摸鱼达人';
+  return '办公室影帝';
 }
 
 /**
@@ -369,6 +376,136 @@ export function drawHighlight(ctx, x, y, w, h, radius) {
   ctx.closePath();
   ctx.fill();
   ctx.restore();
+}
+
+/**
+ * 绘制阴影卡片 — 白色卡片 + 柔和阴影 + 微边框
+ */
+export function drawShadowCard(ctx, x, y, w, h, radius, opts = {}) {
+  const { shadowColor = COLORS.glassShadow, shadowBlur = 12, shadowOffsetY = 4,
+          fillColor = COLORS.cardWhite, borderColor = COLORS.divider, borderWidth = 1 } = opts;
+
+  ctx.save();
+  // 阴影层
+  ctx.shadowColor = shadowColor;
+  ctx.shadowBlur = shadowBlur;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = shadowOffsetY;
+  ctx.fillStyle = fillColor;
+  ctx.beginPath();
+  roundRectPath(ctx, x, y, w, h, radius);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // 边框
+  if (borderWidth > 0) {
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = borderWidth;
+    ctx.beginPath();
+    roundRectPath(ctx, x, y, w, h, radius);
+    ctx.closePath();
+    ctx.stroke();
+  }
+}
+
+/**
+ * 绘制渐变按钮（三层：阴影 → 渐变体 → 高光条）
+ * 比 drawRoundedButton 更精简的现代风格
+ */
+export function drawGradientButton(ctx, rect, text, colors, opts = {}) {
+  const { fontSize = 20, textColor = '#FFFFFF', radius, pulse = 0 } = opts;
+  const r = radius || rect.height / 2;
+  const cx = rect.x + rect.width / 2;
+  const cy = rect.y + rect.height / 2;
+  const scale = 1 + pulse * 0.04;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(scale, scale);
+  ctx.translate(-cx, -cy);
+
+  // 阴影
+  ctx.shadowColor = 'rgba(0,0,0,0.15)';
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetY = 4;
+
+  // 渐变体
+  const grad = ctx.createLinearGradient(rect.x, rect.y, rect.x, rect.y + rect.height);
+  grad.addColorStop(0, colors[0]);
+  grad.addColorStop(1, colors[1]);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  roundRectPath(ctx, rect.x, rect.y, rect.width, rect.height, r);
+  ctx.closePath();
+  ctx.fill();
+
+  // 清除阴影后画高光
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  ctx.fillStyle = 'rgba(255,255,255,0.20)';
+  ctx.beginPath();
+  roundRectPath(ctx, rect.x + 6, rect.y + 2, rect.width - 12, rect.height * 0.42, r * 0.5);
+  ctx.closePath();
+  ctx.fill();
+
+  // 文字
+  ctx.fillStyle = textColor;
+  ctx.font = font(fontSize, true);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, cx, cy);
+
+  ctx.restore();
+}
+
+/**
+ * 绘制徽章/标签
+ */
+export function drawBadge(ctx, x, y, text, bgColor, textColor, opts = {}) {
+  const { fontSize = 11, padX = 8, padY = 3, radius = 6 } = opts;
+  ctx.font = font(fontSize, true);
+  const tw = ctx.measureText(text).width;
+  const w = tw + padX * 2;
+  const h = fontSize + padY * 2;
+
+  ctx.fillStyle = bgColor;
+  ctx.beginPath();
+  roundRectPath(ctx, x - w / 2, y - h / 2, w, h, radius);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = textColor;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+}
+
+/**
+ * 绘制进度条
+ */
+export function drawProgressBar(ctx, x, y, w, h, progress, color, bgColor) {
+  // 背景
+  ctx.fillStyle = bgColor || 'rgba(0,0,0,0.1)';
+  ctx.beginPath();
+  roundRectPath(ctx, x, y, w, h, h / 2);
+  ctx.closePath();
+  ctx.fill();
+
+  // 进度
+  const fillW = Math.max(w * Math.min(progress, 1), 0);
+  if (fillW > 0) {
+    const grad = ctx.createLinearGradient(x, y, x + fillW, y);
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, color);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    roundRectPath(ctx, x, y, fillW, h, h / 2);
+    ctx.closePath();
+    ctx.fill();
+  }
 }
 
 /**
@@ -584,7 +721,7 @@ function _drawIconTimer(ctx, s) {
   ctx.lineTo(3 * s, -10 * s);
   ctx.stroke();
   // 指针
-  ctx.strokeStyle = '#E8453C';
+  ctx.strokeStyle = '#FF6B4A';
   ctx.lineWidth = 2 * s;
   ctx.beginPath();
   ctx.moveTo(0, 1 * s);
@@ -595,7 +732,7 @@ function _drawIconTimer(ctx, s) {
   ctx.lineTo(4 * s, 3 * s);
   ctx.stroke();
   // 中心点
-  ctx.fillStyle = '#E8453C';
+  ctx.fillStyle = '#FF6B4A';
   ctx.beginPath();
   ctx.arc(0, 1 * s, 1.5 * s, 0, Math.PI * 2);
   ctx.fill();
@@ -627,7 +764,7 @@ function _drawIconStar(ctx, s) {
 
 function _drawIconShield(ctx, s) {
   // 盾牌
-  ctx.fillStyle = '#30D684';
+  ctx.fillStyle = '#35C759';
   ctx.beginPath();
   ctx.moveTo(0, -10 * s);
   ctx.quadraticCurveTo(10 * s, -8 * s, 10 * s, -2 * s);
@@ -759,7 +896,7 @@ function _drawIconBackpack(ctx, s) {
 
 function _drawIconHeadphones(ctx, s) {
   // 耳机
-  ctx.strokeStyle = '#4DA3FF';
+  ctx.strokeStyle = '#4A90E2';
   ctx.lineWidth = 3 * s;
   ctx.lineCap = 'round';
   // 头带
@@ -767,7 +904,7 @@ function _drawIconHeadphones(ctx, s) {
   ctx.arc(0, -1 * s, 9 * s, Math.PI * 1.15, Math.PI * 1.85);
   ctx.stroke();
   // 左耳罩
-  ctx.fillStyle = '#4DA3FF';
+  ctx.fillStyle = '#4A90E2';
   ctx.beginPath();
   ctx.ellipse(-8.5 * s, 3 * s, 3.5 * s, 5 * s, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -776,7 +913,7 @@ function _drawIconHeadphones(ctx, s) {
   ctx.ellipse(8.5 * s, 3 * s, 3.5 * s, 5 * s, 0, 0, Math.PI * 2);
   ctx.fill();
   // 耳罩内
-  ctx.fillStyle = '#2196F3';
+  ctx.fillStyle = '#357ABD';
   ctx.beginPath();
   ctx.ellipse(-8.5 * s, 3 * s, 2 * s, 3 * s, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -802,11 +939,11 @@ function _drawIconCrown(ctx, s) {
   ctx.fillStyle = '#DAA520';
   ctx.fillRect(-9 * s, 4 * s, 18 * s, 3.5 * s);
   // 宝石
-  ctx.fillStyle = '#E8453C';
+  ctx.fillStyle = '#FF6B4A';
   ctx.beginPath();
   ctx.arc(0, -4 * s, 2 * s, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#4DA3FF';
+  ctx.fillStyle = '#4A90E2';
   ctx.beginPath();
   ctx.arc(-6 * s, -2 * s, 1.5 * s, 0, Math.PI * 2);
   ctx.fill();
@@ -883,7 +1020,7 @@ function _drawIconScream(ctx, s) {
   ctx.beginPath();
   ctx.ellipse(0, 4 * s, 3.5 * s, 4 * s, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#E8453C';
+  ctx.fillStyle = '#FF6B4A';
   ctx.beginPath();
   ctx.ellipse(0, 5 * s, 2.5 * s, 2.5 * s, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -907,7 +1044,7 @@ function _drawIconLaptop(ctx, s) {
   // 笔记本电脑
   ctx.fillStyle = '#546E7A';
   ctx.fillRect(-9 * s, -6 * s, 18 * s, 11 * s);
-  ctx.fillStyle = '#4DA3FF';
+  ctx.fillStyle = '#4A90E2';
   ctx.fillRect(-7 * s, -4 * s, 14 * s, 7 * s);
   // 底座
   ctx.fillStyle = '#78909C';
@@ -936,7 +1073,7 @@ function _drawIconPhone(ctx, s) {
   ctx.closePath();
   ctx.fill();
   // 屏幕
-  ctx.fillStyle = '#4DA3FF';
+  ctx.fillStyle = '#4A90E2';
   ctx.fillRect(-5 * s, -7 * s, 10 * s, 13 * s);
   // Home 键
   ctx.fillStyle = '#546E7A';

@@ -29,7 +29,7 @@ import {
 // ============================================================
 
 export function drawMenuPage(ctx, width, height, button, time, playerStats) {
-  // 背景渐变
+  // 背景渐变（浅蓝→白）
   const bgGrad = ctx.createLinearGradient(0, 0, width * 0.3, height);
   bgGrad.addColorStop(0, COLORS.menuGradTop);
   bgGrad.addColorStop(0.45, COLORS.menuGradMid);
@@ -37,8 +37,8 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
 
-  // 装饰大圆
-  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  // 装饰大圆（柔和蓝色）
+  ctx.fillStyle = 'rgba(74,144,226,0.06)';
   ctx.beginPath();
   ctx.arc(width * 0.85, height * 0.12, width * 0.35, 0, Math.PI * 2);
   ctx.fill();
@@ -46,7 +46,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
   ctx.arc(width * 0.1, height * 0.85, width * 0.28, 0, Math.PI * 2);
   ctx.fill();
 
-  // 浮动装饰（使用矢量图标代替 emoji）
+  // 浮动装饰（使用矢量图标）
   const decorItems = [
     { iconId: 'laptop', x: 0.12, y: 0.42, s: 28, phase: 0 },
     { iconId: 'phone', x: 0.85, y: 0.45, s: 26, phase: 1.2 },
@@ -58,7 +58,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
   decorItems.forEach(({ iconId, x, y, s, phase }) => {
     const floatY = Math.sin(time * 1.2 + phase) * 6;
     ctx.save();
-    ctx.globalAlpha = 0.35;
+    ctx.globalAlpha = 0.25;
     drawIcon(ctx, iconId, width * x, height * y + floatY, s);
     ctx.restore();
   });
@@ -67,30 +67,30 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
   const titleY = height * 0.16;
 
   // 标题阴影
-  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  ctx.fillStyle = 'rgba(38,50,56,0.08)';
   ctx.font = font(48, true);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('老板来了', width / 2 + 2, titleY + 2);
 
-  // 标题主体
-  ctx.fillStyle = '#FFFFFF';
+  // 标题主体（深色）
+  ctx.fillStyle = COLORS.textPrimary;
   ctx.fillText('老板来了', width / 2, titleY);
 
   // 标题装饰线
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.strokeStyle = 'rgba(74,144,226,0.3)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(width / 2 - 70, titleY + 28);
   ctx.lineTo(width / 2 + 70, titleY + 28);
   ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.fillStyle = COLORS.primary;
   ctx.beginPath();
   ctx.arc(width / 2, titleY + 28, 3.5, 0, Math.PI * 2);
   ctx.fill();
 
   // 副标题
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillStyle = COLORS.textSecondary;
   ctx.font = font(18);
   ctx.fillText('上班摸鱼醒脑神器', width / 2, height * 0.25);
 
@@ -100,36 +100,36 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
   const cardX = (width - cardW) / 2;
   const cardY = height * 0.31;
 
-  ctx.fillStyle = 'rgba(255,255,255,0.1)';
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
   ctx.beginPath();
   roundRectPath(ctx, cardX, cardY, cardW, cardH, 14);
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.strokeStyle = COLORS.divider;
   ctx.lineWidth = 1;
   ctx.beginPath();
   roundRectPath(ctx, cardX, cardY, cardW, cardH, 14);
   ctx.closePath();
   ctx.stroke();
 
-  ctx.fillStyle = 'rgba(255,255,255,0.88)';
+  ctx.fillStyle = COLORS.textSecondary;
   ctx.font = font(13);
   ctx.textAlign = 'center';
   ctx.fillText('老板会随机出现，在 1.2 秒内点击伪装按钮！', width / 2, cardY + 26);
   ctx.fillText('反应太慢就会被抓包，收集道具可以获得加成~', width / 2, cardY + 50);
 
-  // ---- 历史记录（如果有） ----
+  // ---- 历史记录 ----
   if (playerStats && playerStats.totalGames > 0) {
     const histY = height * 0.46;
     const histH = 48;
-    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.fillStyle = 'rgba(255,255,255,0.65)';
     ctx.beginPath();
     roundRectPath(ctx, cardX, histY, cardW, histH, 12);
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillStyle = COLORS.textSecondary;
     ctx.font = font(12);
     ctx.textAlign = 'left';
     ctx.fillText(`最高分: ${playerStats.bestScore}`, cardX + 16, histY + 20);
@@ -139,7 +139,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
     // 等级
     const level = getPlayerLevel(playerStats);
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillStyle = COLORS.primary;
     ctx.font = font(12, true);
     ctx.fillText(`Lv.${level.level} ${level.title}`, width / 2, histY + 38);
   }
@@ -150,7 +150,7 @@ export function drawMenuPage(ctx, width, height, button, time, playerStats) {
   });
 
   // ---- 底部 ----
-  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.fillStyle = COLORS.textTertiary;
   ctx.font = font(12);
   ctx.textAlign = 'center';
   ctx.fillText('30 秒醒脑反应小游戏', width / 2, height * 0.90);
@@ -223,7 +223,7 @@ export function drawGameUI(ctx, width, height, state, button) {
 function drawTopBar(ctx, width, height, state) {
   const barH = 52;
 
-  // 毛玻璃背景
+  // 白色毛玻璃背景
   ctx.fillStyle = COLORS.glass;
   ctx.fillRect(0, 0, width, barH);
 
@@ -235,9 +235,9 @@ function drawTopBar(ctx, width, height, state) {
   ctx.lineTo(width, barH);
   ctx.stroke();
 
-  // 顶部高光
-  ctx.fillStyle = COLORS.glassHighlight;
-  ctx.fillRect(0, 0, width, barH * 0.4);
+  // 底部微阴影
+  ctx.fillStyle = 'rgba(38,50,56,0.04)';
+  ctx.fillRect(0, barH, width, 2);
 
   const textY = barH / 2;
 
@@ -249,9 +249,9 @@ function drawTopBar(ctx, width, height, state) {
 
   if (urgent) {
     const pulse = Math.sin(Date.now() / 1000 * 6) * 0.3 + 0.7;
-    ctx.fillStyle = `rgba(255,123,115,${pulse})`;
+    ctx.fillStyle = `rgba(255,107,74,${pulse})`;
   } else {
-    ctx.fillStyle = COLORS.textOnDark;
+    ctx.fillStyle = COLORS.textPrimary;
   }
   // 绘制计时器图标
   drawIcon(ctx, 'timer', 22, textY, 16);
@@ -283,17 +283,18 @@ function drawTopBar(ctx, width, height, state) {
 
   // 状态点
   const dotX = width - 82;
-  ctx.fillStyle = isIdle ? COLORS.success : COLORS.warning;
+  ctx.fillStyle = isIdle ? COLORS.statusIdle : COLORS.statusWorking;
   ctx.beginPath();
   ctx.arc(dotX, textY, 4, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = isIdle ? COLORS.successGlow : COLORS.warningGlow;
+  // 状态点光晕
+  ctx.fillStyle = isIdle ? 'rgba(53,199,89,0.2)' : 'rgba(74,144,226,0.2)';
   ctx.beginPath();
   ctx.arc(dotX, textY, 7, 0, Math.PI * 2);
   ctx.fill();
 
   // 状态文字
-  ctx.fillStyle = COLORS.textOnDark;
+  ctx.fillStyle = COLORS.textSecondary;
   ctx.font = font(13);
   ctx.fillText(getStatusText(state.playerStatus), width - 12, textY);
 }
@@ -335,7 +336,7 @@ function drawSuspicionMeter(ctx, width, suspicion) {
 
     // 高怀疑时发光
     if (suspicion > 60) {
-      ctx.fillStyle = `rgba(232,69,60,${(suspicion - 60) / 200})`;
+      ctx.fillStyle = `rgba(255,107,74,${(suspicion - 60) / 200})`;
       ctx.beginPath();
       roundRectPath(ctx, barX - 2, barY - 2, fillW + 4, barH + 4, barH);
       ctx.closePath();
@@ -345,7 +346,7 @@ function drawSuspicionMeter(ctx, width, suspicion) {
 
   // 标签
   if (suspicion > 25) {
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillStyle = COLORS.textTertiary;
     ctx.font = font(9);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
@@ -369,9 +370,9 @@ function drawMessage(ctx, width, height, message, type) {
   let bgColor;
   switch (type) {
     case 'warning': bgColor = 'rgba(255,182,39,0.9)'; break;
-    case 'success': bgColor = 'rgba(48,214,132,0.9)'; break;
-    case 'danger': bgColor = 'rgba(232,69,60,0.9)'; break;
-    default: bgColor = 'rgba(44,48,64,0.88)';
+    case 'success': bgColor = 'rgba(53,199,89,0.9)'; break;
+    case 'danger': bgColor = 'rgba(255,107,74,0.9)'; break;
+    default: bgColor = 'rgba(38,50,56,0.88)';
   }
 
   ctx.fillStyle = 'rgba(0,0,0,0.12)';
@@ -507,7 +508,7 @@ function drawComboGlowEffect(ctx, width, height, combo, glowAlpha) {
 export function drawGameOverPage(ctx, width, height, state, button, player, displayScore) {
   const score = displayScore !== null ? displayScore : Math.floor(state.score);
 
-  // 背景渐变
+  // 背景渐变（浅色）
   const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
   bgGrad.addColorStop(0, COLORS.overGradTop);
   bgGrad.addColorStop(0.5, COLORS.overGradMid);
@@ -515,8 +516,8 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
 
-  // 装饰
-  ctx.fillStyle = 'rgba(255,255,255,0.02)';
+  // 装饰圆（柔和蓝色）
+  ctx.fillStyle = 'rgba(74,144,226,0.04)';
   ctx.beginPath();
   ctx.arc(width * 0.82, height * 0.18, 130, 0, Math.PI * 2);
   ctx.fill();
@@ -525,7 +526,7 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
   ctx.fill();
 
   // ---- 标题 ----
-  ctx.fillStyle = COLORS.textOnDark;
+  ctx.fillStyle = COLORS.textPrimary;
   ctx.font = font(26, true);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -535,7 +536,7 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
   const title = getTitle(score);
   const titleY = height * 0.13;
 
-  ctx.fillStyle = 'rgba(255,215,0,0.1)';
+  ctx.fillStyle = 'rgba(255,179,64,0.12)';
   ctx.beginPath();
   ctx.arc(width / 2, titleY - 6, 40, 0, Math.PI * 2);
   ctx.fill();
@@ -548,13 +549,13 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
 
   // ---- 分数 ----
   const scoreY = height * 0.22;
-  ctx.fillStyle = COLORS.textOnDarkMuted;
+  ctx.fillStyle = COLORS.textSecondary;
   ctx.font = font(14);
   ctx.fillText('最终得分', width / 2, scoreY);
 
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = COLORS.textPrimary;
   ctx.font = font(52, true);
-  ctx.shadowColor = 'rgba(255,255,255,0.15)';
+  ctx.shadowColor = 'rgba(38,50,56,0.1)';
   ctx.shadowBlur = 10;
   ctx.fillText(formatScore(score), width / 2, scoreY + 36);
   ctx.shadowBlur = 0;
@@ -566,19 +567,26 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
     ctx.fillText('新纪录!', width / 2, scoreY + 58);
   }
 
-  // ---- 统计卡片 ----
+  // ---- 统计卡片（白色卡片 + 阴影）----
   const cardX = width * 0.08;
   const cardW = width * 0.84;
   const cardY = height * 0.38;
   const cardH = height * 0.22;
 
-  ctx.fillStyle = 'rgba(255,255,255,0.05)';
+  // 卡片阴影
+  ctx.save();
+  ctx.shadowColor = COLORS.glassShadow;
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetY = 4;
+  ctx.fillStyle = COLORS.cardWhite;
   ctx.beginPath();
   roundRectPath(ctx, cardX, cardY, cardW, cardH, 14);
   ctx.closePath();
   ctx.fill();
+  ctx.restore();
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  // 卡片边框
+  ctx.strokeStyle = COLORS.divider;
   ctx.lineWidth = 1;
   ctx.beginPath();
   roundRectPath(ctx, cardX, cardY, cardW, cardH, 14);
@@ -586,12 +594,13 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
   ctx.stroke();
 
   // 卡片标题
-  ctx.fillStyle = COLORS.textOnDarkMuted;
+  ctx.fillStyle = COLORS.textTertiary;
   ctx.font = font(12);
+  ctx.textAlign = 'center';
   ctx.fillText('本局数据', width / 2, cardY + 18);
 
   // 分割线
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.strokeStyle = COLORS.divider;
   ctx.beginPath();
   ctx.moveTo(cardX + 24, cardY + 32);
   ctx.lineTo(cardX + cardW - 24, cardY + 32);
@@ -607,23 +616,20 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
 
   stats.forEach((stat, i) => {
     const sy = cardY + 48 + i * 32;
-    // 绘制图标
     drawIcon(ctx, stat.iconId, cardX + 34, sy, 14);
-    // 绘制标签文字
     ctx.textAlign = 'left';
-    ctx.fillStyle = COLORS.textOnDarkMuted;
+    ctx.fillStyle = COLORS.textSecondary;
     ctx.font = font(13);
     ctx.fillText(stat.label, cardX + 50, sy);
-    // 绘制数值
     ctx.textAlign = 'right';
-    ctx.fillStyle = COLORS.textOnDark;
+    ctx.fillStyle = COLORS.textPrimary;
     ctx.font = font(16, true);
     ctx.fillText(stat.value, cardX + cardW - 24, sy);
   });
 
   // ---- 评语 ----
   const commentY = height * 0.64;
-  ctx.fillStyle = COLORS.textOnDarkMuted;
+  ctx.fillStyle = COLORS.textSecondary;
   ctx.font = font(14);
   ctx.textAlign = 'center';
   ctx.fillText(getComment(score), width / 2, commentY);
@@ -655,7 +661,7 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
   });
 
   // 分享提示
-  ctx.fillStyle = COLORS.textOnDarkMuted;
+  ctx.fillStyle = COLORS.textTertiary;
   ctx.font = font(12);
   ctx.textAlign = 'center';
   ctx.fillText('分享给同事，看看谁更能摸鱼！', width / 2, height * 0.90);
@@ -666,11 +672,10 @@ export function drawGameOverPage(ctx, width, height, state, button, player, disp
  */
 function getComment(score) {
   if (score < 100) return '加油！下次争取多摸一会儿~';
-  if (score < 300) return '不错！已经有点摸鱼的感觉了！';
+  if (score < 200) return '不错！已经有点摸鱼的感觉了！';
   if (score < 500) return '厉害！你是摸鱼界的新星！';
   if (score < 800) return '太强了！老板都拿你没办法！';
-  if (score < 1200) return '绝世高手！摸鱼界的传说！';
-  return '无人能敌！你是真正的摸鱼之王！';
+  return '绝世高手！摸鱼界的传说！';
 }
 
 // ============================================================
@@ -695,7 +700,7 @@ export function drawAchievementPopup(ctx, width, achievement, timer) {
   ctx.globalAlpha = alpha;
 
   // 背景
-  ctx.fillStyle = 'rgba(44,48,64,0.95)';
+  ctx.fillStyle = 'rgba(255,255,255,0.96)';
   ctx.beginPath();
   roundRectPath(ctx, popupX, popupY, popupW, popupH, 14);
   ctx.closePath();
@@ -723,7 +728,7 @@ export function drawAchievementPopup(ctx, width, achievement, timer) {
   ctx.textBaseline = 'middle';
   ctx.fillText(`成就解锁: ${achievement.name}`, popupX + 50, popupY + popupH / 2 - 8);
 
-  ctx.fillStyle = COLORS.textOnDarkMuted;
+  ctx.fillStyle = COLORS.textSecondary;
   ctx.font = font(11);
   ctx.fillText(achievement.desc, popupX + 50, popupY + popupH / 2 + 10);
 

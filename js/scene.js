@@ -32,15 +32,15 @@ export function drawOfficeBackground(ctx, width, height, suspicion, envShakeInte
   // ---- 踢脚线 ----
   const floorY = height * 0.7;
   const baseGrad = ctx.createLinearGradient(0, floorY - 6, 0, floorY + 6);
-  baseGrad.addColorStop(0, '#D4C4AA');
+  baseGrad.addColorStop(0, '#D8D0C4');
   baseGrad.addColorStop(0.5, COLORS.baseboard);
-  baseGrad.addColorStop(1, '#B8A88E');
+  baseGrad.addColorStop(1, '#C0B8A8');
   ctx.fillStyle = baseGrad;
   ctx.fillRect(0, floorY - 6, width, 12);
 
   // ---- 地板 ----
   const floorGrad = ctx.createLinearGradient(0, floorY, 0, height);
-  floorGrad.addColorStop(0, '#A08B70');
+  floorGrad.addColorStop(0, '#C4A880');
   floorGrad.addColorStop(0.3, COLORS.floorBase);
   floorGrad.addColorStop(1, COLORS.floorDark);
   ctx.fillStyle = floorGrad;
@@ -86,7 +86,7 @@ export function drawOfficeBackground(ctx, width, height, suspicion, envShakeInte
     const alpha = (suspicion - 20) / 200; // 最多 ~0.4
     ctx.save();
     ctx.globalAlpha = Math.min(alpha, 0.25);
-    ctx.fillStyle = '#FF2020';
+    ctx.fillStyle = '#FF4D3D';
     ctx.fillRect(0, 0, width, height);
     ctx.restore();
   }
@@ -98,8 +98,8 @@ export function drawOfficeBackground(ctx, width, height, suspicion, envShakeInte
 
 function drawWindow(ctx, x, y, w, h) {
   // 窗框
-  ctx.fillStyle = '#D8C8B0';
-  fillRoundRect(ctx, x - 5, y - 5, w + 10, h + 10, 4, '#D8C8B0');
+  ctx.fillStyle = '#E0E8F0';
+  fillRoundRect(ctx, x - 5, y - 5, w + 10, h + 10, 4, '#E0E8F0');
 
   // 天空
   const skyGrad = ctx.createLinearGradient(x, y, x, y + h);
@@ -115,7 +115,7 @@ function drawWindow(ctx, x, y, w, h) {
   drawCloud(ctx, x + w * 0.35, y + h * 0.6, w * 0.12);
 
   // 窗格
-  ctx.strokeStyle = '#C8B8A0';
+  ctx.strokeStyle = '#D0D8E0';
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(x + w / 2, y);
@@ -130,8 +130,8 @@ function drawWindow(ctx, x, y, w, h) {
 
   // 窗台
   const sillGrad = ctx.createLinearGradient(0, y + h, 0, y + h + 10);
-  sillGrad.addColorStop(0, '#D8C8B0');
-  sillGrad.addColorStop(1, '#C8B8A0');
+  sillGrad.addColorStop(0, '#E0E8F0');
+  sillGrad.addColorStop(1, '#D0D8E0');
   ctx.fillStyle = sillGrad;
   ctx.fillRect(x - 8, y + h, w + 16, 10);
 }
@@ -154,7 +154,7 @@ function drawClock(ctx, x, y, r) {
 
   // 钟面
   ctx.fillStyle = '#FFFDF5';
-  ctx.strokeStyle = '#5C4B3A';
+  ctx.strokeStyle = '#78909C';
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -162,7 +162,7 @@ function drawClock(ctx, x, y, r) {
   ctx.stroke();
 
   // 刻度
-  ctx.fillStyle = '#5C4B3A';
+  ctx.fillStyle = '#607D8B';
   for (let i = 0; i < 12; i++) {
     const angle = (i * Math.PI) / 6 - Math.PI / 2;
     const dist = r * 0.78;
@@ -175,7 +175,7 @@ function drawClock(ctx, x, y, r) {
   // 时针
   const now = Date.now() / 1000;
   const hourAngle = ((9 + (now % 60) / 60) * Math.PI) / 6 - Math.PI / 2;
-  ctx.strokeStyle = '#3D3226';
+  ctx.strokeStyle = '#455A64';
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
   ctx.beginPath();
@@ -192,7 +192,7 @@ function drawClock(ctx, x, y, r) {
   ctx.stroke();
 
   // 中心
-  ctx.fillStyle = '#E8453C';
+  ctx.fillStyle = '#FF6B4A';
   ctx.beginPath();
   ctx.arc(x, y, 3, 0, Math.PI * 2);
   ctx.fill();
@@ -205,7 +205,7 @@ function drawPoster(ctx, x, y, w, h) {
 
   // 边框
   ctx.fillStyle = '#FFFDF5';
-  ctx.strokeStyle = '#D8C8B0';
+  ctx.strokeStyle = '#E0E7EF';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   roundRectPath(ctx, x, y, w, h, 4);
@@ -214,7 +214,7 @@ function drawPoster(ctx, x, y, w, h) {
   ctx.stroke();
 
   // 装饰色条
-  ctx.fillStyle = '#E8453C';
+  ctx.fillStyle = '#4A90E2';
   ctx.fillRect(x + 6, y + 8, 3, h - 16);
 
   // 文字
@@ -228,7 +228,7 @@ function drawPoster(ctx, x, y, w, h) {
   });
 
   // 装饰圆
-  ctx.fillStyle = '#FFD700';
+  ctx.fillStyle = '#FFB340';
   ctx.beginPath();
   ctx.arc(x + w / 2 + 4, y + h - h * 0.15, w * 0.08, 0, Math.PI * 2);
   ctx.fill();
@@ -344,12 +344,12 @@ function drawComputer(ctx, x, y, w, h) {
   ctx.fillText('摸鱼模式 v2.0', x + w - 10, y + h - 2);
 
   // LED 指示灯
-  ctx.fillStyle = '#30D684';
+  ctx.fillStyle = '#35C759';
   ctx.beginPath();
   ctx.arc(x + w - 8, y - 3, 2.5, 0, Math.PI * 2);
   ctx.fill();
   // LED 光晕
-  ctx.fillStyle = 'rgba(48,214,132,0.25)';
+  ctx.fillStyle = 'rgba(53,199,89,0.25)';
   ctx.beginPath();
   ctx.arc(x + w - 8, y - 3, 5, 0, Math.PI * 2);
   ctx.fill();
@@ -614,7 +614,7 @@ export function drawPlayerIdle(ctx, x, y, size, idleAnim) {
   fillRoundRect(ctx, phoneX - 12, phoneY, 24, 38, 4, '#1E2530');
   // 手机屏幕
   const screenGrad = ctx.createLinearGradient(phoneX - 9, phoneY + 3, phoneX + 9, phoneY + 33);
-  screenGrad.addColorStop(0, '#4DA3FF');
+  screenGrad.addColorStop(0, '#4A90E2');
   screenGrad.addColorStop(1, '#7B61FF');
   ctx.fillStyle = screenGrad;
   fillRoundRect(ctx, phoneX - 9, phoneY + 3, 18, 30, 2, screenGrad);
@@ -950,7 +950,7 @@ export function drawBoss(ctx, x, y, width, expression, walkPhase) {
       ctx.stroke();
     }
     if (expression === 'furious') {
-      ctx.fillStyle = 'rgba(232,69,60,0.15)';
+      ctx.fillStyle = 'rgba(255,107,74,0.15)';
       ctx.beginPath();
       ctx.arc(0, y + headR * 0.5, headR * 1.3, 0, Math.PI * 2);
       ctx.fill();
@@ -1089,8 +1089,8 @@ export function drawWarningVignette(ctx, width, height, progress) {
   ];
 
   edges.forEach(({ grad, rect }) => {
-    grad.addColorStop(0, `rgba(232,69,60,${alpha})`);
-    grad.addColorStop(1, 'rgba(232,69,60,0)');
+    grad.addColorStop(0, `rgba(255,107,74,${alpha})`);
+    grad.addColorStop(1, 'rgba(255,107,74,0)');
     ctx.fillStyle = grad;
     ctx.fillRect(...rect);
   });
@@ -1109,14 +1109,14 @@ export function drawWarningBar(ctx, x, y, width, height, progress, actualTimeout
   if (barW > 0) {
     const grad = ctx.createLinearGradient(x, y, x + barW, y);
     if (progress < 0.4) {
-      grad.addColorStop(0, '#30D684');
-      grad.addColorStop(1, '#22B56E');
+      grad.addColorStop(0, '#35C759');
+      grad.addColorStop(1, '#28A745');
     } else if (progress < 0.7) {
       grad.addColorStop(0, '#FFD700');
       grad.addColorStop(1, '#FFB627');
     } else {
-      grad.addColorStop(0, '#FF7B73');
-      grad.addColorStop(1, '#E8453C');
+      grad.addColorStop(0, '#FF7A59');
+      grad.addColorStop(1, '#FF4D3D');
     }
     ctx.fillStyle = grad;
     ctx.beginPath();

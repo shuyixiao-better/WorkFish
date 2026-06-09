@@ -125,7 +125,7 @@ export function updateBoss(state, boss, deltaTime) {
       state.status = GameStatus.GAME_OVER;
       showMessage(state, '你被老板抓包了！', 2, 'danger');
       triggerShake(state, 14, 0.7);
-      triggerFlash(state, '#FF0000', 0.3);
+      triggerFlash(state, '#FF4D3D', 0.3);
     }
   }
 }
@@ -277,7 +277,7 @@ export function handleDisguise(state, boss) {
     const disappearTypes = ['fade', 'shrink', 'slideLeft'];
     boss.disappearType = disappearTypes[Math.floor(Math.random() * disappearTypes.length)];
 
-    triggerFlash(state, '#30D684', 0.1);
+    triggerFlash(state, '#35C759', 0.1);
 
     return {
       success: true,

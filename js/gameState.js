@@ -204,7 +204,7 @@ export function updateGameTime(state, deltaTime) {
     state.status = GameStatus.GAME_OVER;
     // 时间耗尽也需要视觉反馈
     triggerShake(state, 10, 0.5);
-    triggerFlash(state, '#FF4444', 0.25);
+    triggerFlash(state, '#FF4D3D', 0.25);
   }
 }
 
@@ -437,7 +437,7 @@ export function triggerCloseCall(state) {
 /**
  * 添加浮动分数
  */
-export function addScorePopup(state, text, x, y, color = '#FFD700', scale = 1.3) {
+export function addScorePopup(state, text, x, y, color = '#FFB340', scale = 1.3) {
   state.scorePopups.push({
     x, y,
     text,

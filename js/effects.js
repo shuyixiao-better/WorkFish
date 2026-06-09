@@ -47,8 +47,8 @@ export function getRatingConfig(rating) {
   const configs = {
     [TimingRating.PERFECT]: {
       label: '完美!',
-      color: '#FFD700',
-      glowColor: 'rgba(255,215,0,0.6)',
+      color: '#FFB340',
+      glowColor: 'rgba(255,179,64,0.6)',
       fontSize: 32,
       hitStop: 0.12,       // 画面冻结时间
       ringSpeed: 400,      // 冲击波扩散速度
@@ -57,8 +57,8 @@ export function getRatingConfig(rating) {
     },
     [TimingRating.GREAT]: {
       label: '出色!',
-      color: '#30D684',
-      glowColor: 'rgba(48,214,132,0.5)',
+      color: '#35C759',
+      glowColor: 'rgba(53,199,89,0.5)',
       fontSize: 28,
       hitStop: 0.06,
       ringSpeed: 300,
@@ -67,8 +67,8 @@ export function getRatingConfig(rating) {
     },
     [TimingRating.GOOD]: {
       label: '不错',
-      color: '#4DA3FF',
-      glowColor: 'rgba(77,163,255,0.4)',
+      color: '#4A90E2',
+      glowColor: 'rgba(74,144,226,0.4)',
       fontSize: 24,
       hitStop: 0,
       ringSpeed: 200,
@@ -77,8 +77,8 @@ export function getRatingConfig(rating) {
     },
     [TimingRating.CLOSE]: {
       label: '极限!',
-      color: '#FF6B9D',
-      glowColor: 'rgba(255,107,157,0.5)',
+      color: '#FF6B4A',
+      glowColor: 'rgba(255,107,74,0.5)',
       fontSize: 26,
       hitStop: 0.08,
       ringSpeed: 350,
@@ -100,7 +100,7 @@ export function createImpactRing(x, y, config) {
     maxRadius: 120,
     speed: config.ringSpeed || 300,
     width: config.ringWidth || 3,
-    color: config.color || '#FFD700',
+    color: config.color || '#FFB340',
     alpha: 1,
     active: true,
   };
@@ -419,7 +419,7 @@ export function drawFailText(ctx, width, height, timer) {
   ctx.scale(scale, scale);
 
   // 外发光
-  ctx.shadowColor = 'rgba(232,69,60,0.6)';
+  ctx.shadowColor = 'rgba(255,107,74,0.6)';
   ctx.shadowBlur = 20;
 
   // 描边

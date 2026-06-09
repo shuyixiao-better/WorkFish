@@ -23,8 +23,8 @@ function formatScore(score) {
 function getTitle(score) {
   if (score < 200) return '实习摸鱼员';
   if (score < 500) return '职场老油条';
-  if (score < 800) return '办公室影帝';
-  return '摸鱼宗师';
+  if (score < 800) return '摸鱼达人';
+  return '办公室影帝';
 }
 
 function getBossInterval(elapsedTime) {
@@ -275,11 +275,11 @@ function getAppearProgress(boss) {
 // ============ 场景绘制 ============
 function drawOfficeBackground(ctx, width, height) {
   // 墙壁
-  ctx.fillStyle = '#f5f5f5';
+  ctx.fillStyle = '#F4F8FB';
   ctx.fillRect(0, 0, width, height);
 
   // 墙纸纹理
-  ctx.fillStyle = '#e8e8e8';
+  ctx.fillStyle = '#EAF0F5';
   for (let y = 0; y < height; y += 40) {
     for (let x = 0; x < width; x += 40) {
       if ((x + y) % 80 === 0) ctx.fillRect(x, y, 20, 20);
@@ -289,13 +289,13 @@ function drawOfficeBackground(ctx, width, height) {
   // 地板
   const floorY = height * 0.7;
   const gradient = ctx.createLinearGradient(0, floorY, 0, height);
-  gradient.addColorStop(0, '#8B7355');
-  gradient.addColorStop(1, '#6B5B45');
+  gradient.addColorStop(0, '#D8B98A');
+  gradient.addColorStop(1, '#C4A274');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, floorY, width, height - floorY);
 
   // 地板纹理
-  ctx.strokeStyle = '#5B4B35';
+  ctx.strokeStyle = '#B0956A';
   ctx.lineWidth = 1;
   for (let x = 0; x < width; x += 60) {
     ctx.beginPath();
@@ -319,15 +319,15 @@ function drawOfficeBackground(ctx, width, height) {
 }
 
 function drawWindow(ctx, x, y, w, h) {
-  ctx.fillStyle = '#8B7355';
+  ctx.fillStyle = '#E0E8F0';
   ctx.fillRect(x - 5, y - 5, w + 10, h + 10);
   const g = ctx.createLinearGradient(x, y, x + w, y + h);
-  g.addColorStop(0, '#87CEEB');
-  g.addColorStop(0.5, '#B0E0E6');
-  g.addColorStop(1, '#87CEEB');
+  g.addColorStop(0, '#7EC8E3');
+  g.addColorStop(0.5, '#A8DDF0');
+  g.addColorStop(1, '#D4EEF7');
   ctx.fillStyle = g;
   ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = '#8B7355';
+  ctx.strokeStyle = '#D0D8E0';
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(x + w / 2, y);
@@ -342,15 +342,15 @@ function drawWindow(ctx, x, y, w, h) {
 }
 
 function drawClock(ctx, x, y, radius) {
-  ctx.fillStyle = '#fff';
-  ctx.strokeStyle = '#333';
+  ctx.fillStyle = '#FFFDF5';
+  ctx.strokeStyle = '#78909C';
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = '#333';
+  ctx.fillStyle = '#607D8B';
   for (let i = 0; i < 12; i++) {
     const angle = (i * Math.PI) / 6 - Math.PI / 2;
     ctx.beginPath();
@@ -359,7 +359,7 @@ function drawClock(ctx, x, y, radius) {
     ctx.stroke();
   }
 
-  ctx.strokeStyle = '#333';
+  ctx.strokeStyle = '#455A64';
   ctx.lineWidth = 4;
   ctx.lineCap = 'round';
   const hourAngle = (9 * Math.PI) / 6 + (5 * Math.PI) / 360 - Math.PI / 2;
@@ -368,6 +368,7 @@ function drawClock(ctx, x, y, radius) {
   ctx.lineTo(x + Math.cos(hourAngle) * radius * 0.5, y + Math.sin(hourAngle) * radius * 0.5);
   ctx.stroke();
 
+  ctx.strokeStyle = '#455A64';
   ctx.lineWidth = 2;
   const minuteAngle = (5 * Math.PI) / 30 - Math.PI / 2;
   ctx.beginPath();
@@ -375,16 +376,16 @@ function drawClock(ctx, x, y, radius) {
   ctx.lineTo(x + Math.cos(minuteAngle) * radius * 0.7, y + Math.sin(minuteAngle) * radius * 0.7);
   ctx.stroke();
 
-  ctx.fillStyle = '#333';
+  ctx.fillStyle = '#FF6B4A';
   ctx.beginPath();
   ctx.arc(x, y, 4, 0, Math.PI * 2);
   ctx.fill();
 }
 
 function drawDesk(ctx, x, y, w, h) {
-  ctx.fillStyle = '#8B7355';
+  ctx.fillStyle = '#B88A5A';
   ctx.fillRect(x, y, w, h * 0.2);
-  ctx.fillStyle = '#6B5B45';
+  ctx.fillStyle = '#A07848';
   ctx.fillRect(x + 20, y + h * 0.2, 15, h * 0.8);
   ctx.fillRect(x + w - 35, y + h * 0.2, 15, h * 0.8);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
@@ -394,7 +395,7 @@ function drawDesk(ctx, x, y, w, h) {
 function drawComputer(ctx, x, y, w, h) {
   ctx.fillStyle = '#333';
   ctx.fillRect(x, y, w, h);
-  ctx.fillStyle = '#4a9eff';
+  ctx.fillStyle = '#4A90E2';
   ctx.fillRect(x + 10, y + 10, w - 20, h - 20);
   ctx.fillStyle = '#fff';
   ctx.font = '10px monospace';
@@ -425,7 +426,7 @@ function drawChair(ctx, x, y, w, h) {
 }
 
 function drawPlant(ctx, x, y, w, h) {
-  ctx.fillStyle = '#8B4513';
+  ctx.fillStyle = '#D4845A';
   ctx.beginPath();
   ctx.moveTo(x, y + h * 0.6);
   ctx.lineTo(x + w, y + h * 0.6);
@@ -434,7 +435,7 @@ function drawPlant(ctx, x, y, w, h) {
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = '#228B22';
+  ctx.fillStyle = '#40C057';
   const leaves = [
     { x: x + w * 0.5, y: y + h * 0.3 },
     { x: x + w * 0.3, y: y + h * 0.4 },
@@ -450,7 +451,7 @@ function drawPlant(ctx, x, y, w, h) {
 }
 
 function drawPlayerIdle(ctx, x, y, size) {
-  ctx.fillStyle = '#4a9eff';
+  ctx.fillStyle = '#4A90E2';
   ctx.fillRect(x - size / 2, y, size, size * 1.2);
   ctx.fillStyle = '#ffd4a0';
   ctx.beginPath();
@@ -472,12 +473,12 @@ function drawPlayerIdle(ctx, x, y, size) {
   ctx.stroke();
   ctx.fillStyle = '#333';
   ctx.fillRect(x - size * 0.5, y + size * 0.2, size * 0.3, size * 0.5);
-  ctx.fillStyle = '#4a9eff';
+  ctx.fillStyle = '#4A90E2';
   ctx.fillRect(x - size * 0.48, y + size * 0.22, size * 0.26, size * 0.46);
 }
 
 function drawPlayerWorking(ctx, x, y, size) {
-  ctx.fillStyle = '#4a9eff';
+  ctx.fillStyle = '#4A90E2';
   ctx.fillRect(x - size / 2, y, size, size * 1.2);
   ctx.fillStyle = '#ffd4a0';
   ctx.beginPath();
@@ -498,7 +499,7 @@ function drawPlayerWorking(ctx, x, y, size) {
   ctx.moveTo(x - size * 0.15, y - size * 0.15);
   ctx.lineTo(x + size * 0.15, y - size * 0.15);
   ctx.stroke();
-  ctx.fillStyle = '#87CEEB';
+  ctx.fillStyle = '#A8DDF0';
   ctx.beginPath();
   ctx.ellipse(x + size * 0.35, y - size * 0.1, 3, 5, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -512,9 +513,9 @@ function drawPlayerWorking(ctx, x, y, size) {
 }
 
 function drawBoss(ctx, x, y, size, expression) {
-  ctx.fillStyle = '#2c3e50';
+  ctx.fillStyle = '#2C3E50';
   ctx.fillRect(x - size / 2, y, size, size * 1.3);
-  ctx.fillStyle = '#e74c3c';
+  ctx.fillStyle = '#FF6B4A';
   ctx.beginPath();
   ctx.moveTo(x, y + size * 0.1);
   ctx.lineTo(x - size * 0.08, y + size * 0.5);
@@ -577,78 +578,102 @@ function drawBoss(ctx, x, y, size, expression) {
     ctx.stroke();
   }
 
-  ctx.fillStyle = '#8B4513';
+  ctx.fillStyle = '#5C3A1E';
   ctx.fillRect(x + size * 0.3, y + size * 0.2, size * 0.3, size * 0.4);
-  ctx.fillStyle = '#654321';
+  ctx.fillStyle = '#7A4E2A';
   ctx.fillRect(x + size * 0.3, y + size * 0.2, size * 0.3, size * 0.05);
 }
 
 // ============ UI绘制 ============
 function drawMenuPage(ctx, width, height, button) {
-  const gradient = ctx.createLinearGradient(0, 0, 0, height);
-  gradient.addColorStop(0, '#667eea');
-  gradient.addColorStop(1, '#764ba2');
+  const gradient = ctx.createLinearGradient(0, 0, width * 0.3, height);
+  gradient.addColorStop(0, '#DDF2FF');
+  gradient.addColorStop(0.45, '#EAF6FF');
+  gradient.addColorStop(1, '#F8FCFF');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
   // 装饰
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-  ctx.fillRect(width * 0.15, height * 0.7, 60, 45);
-  ctx.fillRect(width * 0.15 + 20, height * 0.7 + 45, 20, 10);
+  ctx.fillStyle = 'rgba(74, 144, 226, 0.06)';
   ctx.beginPath();
-  ctx.arc(width * 0.8, height * 0.75, 15, 0, Math.PI * 2);
+  ctx.arc(width * 0.85, height * 0.12, width * 0.35, 0, Math.PI * 2);
   ctx.fill();
-  ctx.font = '30px Arial';
-  ctx.fillText('💼', width * 0.2, height * 0.8);
-  ctx.fillText('📱', width * 0.85, height * 0.85);
+  ctx.beginPath();
+  ctx.arc(width * 0.1, height * 0.85, width * 0.28, 0, Math.PI * 2);
+  ctx.fill();
 
-  // 标题
-  ctx.fillStyle = '#fff';
+  // 标题阴影
+  ctx.fillStyle = 'rgba(38, 50, 56, 0.08)';
   ctx.font = 'bold 48px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('老板来了', width / 2, height * 0.25);
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-  ctx.fillText('老板来了', width / 2 + 3, height * 0.25 + 3);
+  ctx.fillText('老板来了', width / 2 + 2, height * 0.25 + 2);
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  // 标题主体（深色）
+  ctx.fillStyle = '#263238';
+  ctx.fillText('老板来了', width / 2, height * 0.25);
+
+  ctx.fillStyle = '#607D8B';
   ctx.font = '24px Arial';
   ctx.fillText('上班摸鱼醒脑神器', width / 2, height * 0.35);
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  // 说明卡片
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+  const cardW = width * 0.72;
+  const cardH = 72;
+  const cardX = (width - cardW) / 2;
+  const cardY = height * 0.42;
+  roundRect(ctx, cardX, cardY, cardW, cardH, 14);
+  ctx.fill();
+
+  ctx.fillStyle = '#607D8B';
   ctx.font = '16px Arial';
-  ctx.fillText('老板会随机出现，快点击"伪装工作"按钮！', width / 2, height * 0.5);
-  ctx.fillText('反应太慢就会被抓包哦~', width / 2, height * 0.55);
+  ctx.textAlign = 'center';
+  ctx.fillText('老板会随机出现，快点击"伪装工作"按钮！', width / 2, cardY + 28);
+  ctx.fillText('反应太慢就会被抓包哦~', width / 2, cardY + 52);
 
-  drawButton(ctx, button, '开始摸鱼', '#ff6b6b', '#ee5a24');
+  drawButton(ctx, button, '开始摸鱼', '#5BA0F0', '#4A90E2');
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.fillStyle = '#90A4AE';
   ctx.font = '14px Arial';
   ctx.fillText('适合上班摸鱼时玩的30秒醒脑小游戏', width / 2, height * 0.85);
 }
 
 function drawGameUI(ctx, width, height, state, button) {
-  // 顶部信息栏
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  // 顶部信息栏（白色毛玻璃）
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
   ctx.fillRect(0, 0, width, 50);
+  ctx.strokeStyle = '#E0E7EF';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, 50);
+  ctx.lineTo(width, 50);
+  ctx.stroke();
 
-  ctx.fillStyle = state.remainingTime <= 5 ? '#ff6b6b' : '#fff';
+  ctx.fillStyle = state.remainingTime <= 5 ? '#FF6B4A' : '#263238';
   ctx.font = 'bold 20px Arial';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(`⏱ ${formatTime(state.remainingTime)}`, 15, 25);
 
-  ctx.fillStyle = '#ffd700';
+  ctx.fillStyle = '#FFB340';
   ctx.textAlign = 'center';
   ctx.fillText(`⭐ ${formatScore(state.score)}`, width / 2, 25);
 
   if (state.combo > 1) {
-    ctx.fillStyle = '#ff6b6b';
+    ctx.fillStyle = '#FF6B9D';
     ctx.font = 'bold 16px Arial';
     ctx.fillText(`${state.combo}x COMBO`, width / 2, 45);
   }
 
-  ctx.fillStyle = state.playerStatus === PlayerStatus.IDLE ? '#2ecc71' : '#f39c12';
+  // 状态点 + 文字
+  const isIdle = state.playerStatus === PlayerStatus.IDLE;
+  ctx.fillStyle = isIdle ? '#35C759' : '#4A90E2';
+  ctx.beginPath();
+  ctx.arc(width - 80, 25, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#607D8B';
   ctx.textAlign = 'right';
   ctx.font = '16px Arial';
   ctx.fillText(getStatusText(state.playerStatus), width - 15, 25);
@@ -661,14 +686,14 @@ function drawGameUI(ctx, width, height, state, button) {
 
   // 消息
   if (state.message) {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillStyle = 'rgba(38, 50, 56, 0.88)';
     const msgWidth = 280;
     const msgHeight = 50;
     const msgX = (width - msgWidth) / 2;
     const msgY = height * 0.15;
     roundRect(ctx, msgX, msgY, msgWidth, msgHeight, 10);
     ctx.fill();
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = '#F8F9FA';
     ctx.font = 'bold 24px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -676,8 +701,8 @@ function drawGameUI(ctx, width, height, state, button) {
   }
 
   // 伪装按钮
-  const buttonColor = state.bossVisible ? '#ff6b6b' : '#95a5a6';
-  const buttonHoverColor = state.bossVisible ? '#ee5a24' : '#7f8c8d';
+  const buttonColor = state.bossVisible ? '#FF7A59' : '#B0BEC5';
+  const buttonHoverColor = state.bossVisible ? '#FF4D3D' : '#90A4AE';
   const buttonText = state.bossVisible ? '伪装工作！' : '伪装工作';
   drawButton(ctx, button, buttonText, buttonColor, buttonHoverColor);
 
@@ -694,34 +719,55 @@ function drawGameUI(ctx, width, height, state, button) {
 
 function drawGameOverPage(ctx, width, height, state, button) {
   const gradient = ctx.createLinearGradient(0, 0, 0, height);
-  gradient.addColorStop(0, '#2c3e50');
-  gradient.addColorStop(1, '#3498db');
+  gradient.addColorStop(0, '#EEF4F9');
+  gradient.addColorStop(0.5, '#F6FAFB');
+  gradient.addColorStop(1, '#FFFFFF');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
-  ctx.fillStyle = '#fff';
+  // 装饰圆
+  ctx.fillStyle = 'rgba(74, 144, 226, 0.04)';
+  ctx.beginPath();
+  ctx.arc(width * 0.82, height * 0.18, 130, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(width * 0.12, height * 0.82, 100, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#263238';
   ctx.font = 'bold 36px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('游戏结束', width / 2, height * 0.12);
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  // 白色统计卡片
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetY = 4;
+  ctx.fillStyle = '#FFFFFF';
   roundRect(ctx, width * 0.1, height * 0.18, width * 0.8, height * 0.45, 15);
   ctx.fill();
+  ctx.restore();
+
+  ctx.strokeStyle = '#E0E7EF';
+  ctx.lineWidth = 1;
+  roundRect(ctx, width * 0.1, height * 0.18, width * 0.8, height * 0.45, 15);
+  ctx.stroke();
 
   const title = getTitle(state.score);
-  ctx.fillStyle = '#ffd700';
+  ctx.fillStyle = '#FFB340';
   ctx.font = 'bold 28px Arial';
   ctx.fillText(`🏆 ${title}`, width / 2, height * 0.25);
 
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = '#263238';
   ctx.font = 'bold 48px Arial';
   ctx.fillText(formatScore(state.score), width / 2, height * 0.35);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  ctx.fillStyle = '#607D8B';
   ctx.font = '18px Arial';
   ctx.fillText('分', width / 2 + 50, height * 0.35);
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+  ctx.strokeStyle = '#E0E7EF';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(width * 0.2, height * 0.42);
@@ -735,40 +781,41 @@ function drawGameOverPage(ctx, width, height, state, button) {
   ];
   stats.forEach((stat, index) => {
     const y = height * 0.48 + index * 45;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillStyle = '#607D8B';
     ctx.font = '18px Arial';
     ctx.textAlign = 'left';
     ctx.fillText(`${stat.icon} ${stat.label}`, width * 0.2, y);
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = '#263238';
     ctx.font = 'bold 22px Arial';
     ctx.textAlign = 'right';
     ctx.fillText(stat.value, width * 0.8, y);
   });
 
   const comment = getComment(state.score);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.fillStyle = '#607D8B';
   ctx.font = '16px Arial';
   ctx.textAlign = 'center';
   ctx.fillText(comment, width / 2, height * 0.7);
 
-  drawButton(ctx, button, '再来一局', '#2ecc71', '#27ae60');
+  drawButton(ctx, button, '再来一局', '#4CD964', '#35C759');
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.fillStyle = '#90A4AE';
   ctx.font = '14px Arial';
   ctx.fillText('分享给同事，看看谁更能摸鱼！', width / 2, height * 0.88);
 }
 
 function getComment(score) {
   if (score < 100) return '加油！下次争取多摸一会儿~';
-  if (score < 300) return '不错！已经有点摸鱼的感觉了！';
+  if (score < 200) return '不错！已经有点摸鱼的感觉了！';
   if (score < 500) return '厉害！你是摸鱼界的新星！';
   if (score < 800) return '太强了！老板都拿你没办法！';
-  return '绝世高手！你是摸鱼界的传说！';
+  return '绝世高手！摸鱼界的传说！';
 }
 
 function drawButton(ctx, rect, text, color, hoverColor) {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-  roundRect(ctx, rect.x + 3, rect.y + 3, rect.width, rect.height, rect.height / 2);
+  // 按钮阴影
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+  roundRect(ctx, rect.x + 2, rect.y + 3, rect.width, rect.height, rect.height / 2);
   ctx.fill();
 
   const gradient = ctx.createLinearGradient(rect.x, rect.y, rect.x, rect.y + rect.height);
@@ -778,13 +825,14 @@ function drawButton(ctx, rect, text, color, hoverColor) {
   roundRect(ctx, rect.x, rect.y, rect.width, rect.height, rect.height / 2);
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+  ctx.lineWidth = 1.5;
   roundRect(ctx, rect.x, rect.y, rect.width, rect.height, rect.height / 2);
   ctx.stroke();
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-  roundRect(ctx, rect.x + 5, rect.y + 5, rect.width - 10, rect.height / 3, rect.height / 4);
+  // 高光
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
+  roundRect(ctx, rect.x + 5, rect.y + 4, rect.width - 10, rect.height / 3, rect.height / 4);
   ctx.fill();
 
   ctx.fillStyle = '#fff';
@@ -803,14 +851,14 @@ function drawWarningBar(ctx, x, y, width, height, progress) {
   if (barWidth > 0) {
     const gradient = ctx.createLinearGradient(x, y, x + barWidth, y);
     if (progress < 0.5) {
-      gradient.addColorStop(0, '#2ecc71');
-      gradient.addColorStop(1, '#27ae60');
+      gradient.addColorStop(0, '#35C759');
+      gradient.addColorStop(1, '#28A745');
     } else if (progress < 0.8) {
-      gradient.addColorStop(0, '#f1c40f');
-      gradient.addColorStop(1, '#f39c12');
+      gradient.addColorStop(0, '#FFB627');
+      gradient.addColorStop(1, '#E5A020');
     } else {
-      gradient.addColorStop(0, '#e74c3c');
-      gradient.addColorStop(1, '#c0392b');
+      gradient.addColorStop(0, '#FF7A59');
+      gradient.addColorStop(1, '#FF4D3D');
     }
     ctx.fillStyle = gradient;
     roundRect(ctx, x, y, barWidth, height, height / 2);
@@ -1001,7 +1049,7 @@ class Game {
         vy: Math.sin(angle) * speed,
         size: randomFloat(3, 8),
         alpha: 1,
-        color: type === 'success' ? '#2ecc71' : '#e74c3c',
+        color: type === 'success' ? '#35C759' : '#FF6B4A',
       });
     }
   }

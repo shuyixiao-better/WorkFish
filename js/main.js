@@ -516,7 +516,7 @@ export class Game {
 
     // 红色闪屏
     this.state.flashAlpha = 0.35;
-    this.state.flashColor = '#FF2020';
+    this.state.flashColor = '#FF4D3D';
 
     // 启动游戏结束过渡动画
     this.state.gameOverAnimTimer = 0.01; // 标记过渡开始
@@ -726,7 +726,7 @@ export class Game {
       // 感叹号
       if (appearProgress > 0.6) {
         const bounce = Math.sin(this.boss.exclamationTimer * 6) * 4;
-        ctx.fillStyle = '#E8453C';
+        ctx.fillStyle = '#FF6B4A';
         ctx.font = font(28, true);
         ctx.textAlign = 'center';
         const exX = this.boss.x + bossW / 2 + 38;
